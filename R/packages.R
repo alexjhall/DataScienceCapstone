@@ -29,6 +29,14 @@ library(ggrepel)
 library(pwr)
 library(fuzzyjoin)
 
+# text mining
+library(tm)
+library(quanteda)
+library(tidytext)
+library(readtext)
+
+
+
 # For reversing list structure
 library(paleotree)
 # For emojis

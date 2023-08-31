@@ -14,8 +14,6 @@ lapply(
 
 ## Packages loaded as part of above code.
 
-## Set colours using function sourced in above code.
-set_colours_function()
 
 
 ## This is where you specify your targets and dependencies. See
@@ -26,12 +24,28 @@ list(
   ## *************************************************
   ## Source paths
   ## *************************************************
-  ## Source Enforcement campaign data
+  ## Source en_US data - blogs
   tar_target(
-    ec_data_path,
-    paste0(here::here(), "/data-raw/CommsTrackerDataEnforcement.xlsx"),
+    en_us_data_blogs_path,
+    paste0(here::here(), "/data-raw/en_US/en_US.blogs.txt"),
     format = "file"
-  )
+  ),
+  
+  ## Source en_US data - news
+  tar_target(
+      en_us_data_news_path,
+      paste0(here::here(), "/data-raw/en_US/en_US.news.txt"),
+      format = "file"
+  ),
+  
+  ## Source en_US data - twitter
+  tar_target(
+      en_us_data_twitter_path,
+      paste0(here::here(), "/data-raw/en_US/en_US.twitter.txt"),
+      format = "file"
+  ),
+  
+  
   
   
   
@@ -40,11 +54,14 @@ list(
   ## Read sources
   ## *************************************************
   
-  # ## Read in EC data
-  # tar_target(
-  #   read_ec_data,
-  #   readxl::read_excel(path = ec_data_path, col_types="text")
-  # ),
+  ## Read in en_US data
+  ## Blogs
+  tar_target(
+    read_en_us_data_blogs,
+    readtext::readtext(file = en_us_data_blogs_path)
+  )
+  
+  
   
   
   ## *************************************************
