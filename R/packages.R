@@ -34,6 +34,8 @@ library(tm)
 library(quanteda)
 library(tidytext)
 library(readtext)
+library(stopwords)
+library(sentimentr) ## For removing profanity
 
 
 

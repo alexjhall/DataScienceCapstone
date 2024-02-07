@@ -7,7 +7,8 @@ library(tarchetypes)
 lapply(
   grep(
     list.files('./R', full.names = TRUE),
-    pattern = '_scratchpad\\.R', invert = TRUE, value = TRUE
+    # pattern = '_scratchpad\\.R', invert = TRUE, value = TRUE
+    pattern = 'scratchpad', invert = TRUE, value = TRUE
   ),
   source
 )
@@ -24,7 +25,15 @@ list(
   ## *************************************************
   ## Source paths
   ## *************************************************
-  ## Source en_US data - blogs
+  
+    ## Source en_US data - twitter
+    tar_target(
+        en_us_data_twitter_path,
+        paste0(here::here(), "/data-raw/en_US/en_US.twitter.txt"),
+        format = "file"
+    ),
+    
+    ## Source en_US data - blogs
   tar_target(
     en_us_data_blogs_path,
     paste0(here::here(), "/data-raw/en_US/en_US.blogs.txt"),
@@ -38,12 +47,7 @@ list(
       format = "file"
   ),
   
-  ## Source en_US data - twitter
-  tar_target(
-      en_us_data_twitter_path,
-      paste0(here::here(), "/data-raw/en_US/en_US.twitter.txt"),
-      format = "file"
-  ),
+  
   
   
   
@@ -54,13 +58,34 @@ list(
   ## Read sources
   ## *************************************************
   
-  ## Read in en_US data
+  ## Read in whole en_US data - probably not required
   ## Blogs
-  tar_target(
-    read_en_us_data_blogs,
-    readtext::readtext(file = en_us_data_blogs_path)
-  )
+  # tar_target(
+  #   read_en_us_data_blogs,
+  #   readtext::readtext(file = en_us_data_blogs_path)
+  # )
   
+  
+  ## Read sample of twitter data and returns vector
+  tar_target(
+      sample_en_us_data_twitter,
+      sample_text_data(file_path = en_us_data_twitter_path,
+                       sample_size = 1000)
+  ),
+  
+  ## Read sample of blogs data and returns vector
+  tar_target(
+      sample_en_us_data_blogs,
+      sample_text_data(file_path = en_us_data_blogs_path,
+                       sample_size = 1000)
+  ),
+  
+  ## Read sample of news data and returns vector
+  tar_target(
+      sample_en_us_data_news,
+      sample_text_data(file_path = en_us_data_news_path,
+                       sample_size = 1000)
+  ),
   
   
   
@@ -68,13 +93,51 @@ list(
   ## Cleaning
   ## *************************************************
   
+  ## Remove profanity - twitter
+  tar_target(
+      twitter_noprofan,
+      remove_profanity_function(sample_en_us_data_twitter)
+  ),
+  
+  ## Remove profanity - blogs
+  tar_target(
+      blogs_noprofan,
+      remove_profanity_function(sample_en_us_data_blogs)
+  ),
   
   
+  ## Remove profanity - news
+  tar_target(
+      news_noprofan,
+      remove_profanity_function(sample_en_us_data_news)
+  ),
+  
+  
+  
+  
+  ## Combine above vectors into single dataframe (tibble)
+  tar_target(
+      combine_source_vectors,
+      combine_source_vectors_function(vec_list = list(
+          "Twitter" = twitter_noprofan,
+          "Blogs" = blogs_noprofan,
+          "News" = news_noprofan
+      ))
+      
+  ),
+  
+  
+  ## Pre-processing and tokenisation
+  tar_target(
+      preprocess_tokenise,
+      preprocess_tokenise_function(combine_source_vectors)
+
+  )
  
   
   
   ## *************************************************
-  ## Subsets of data
+  ## Document Term Matrix
   ## *************************************************
   
   
