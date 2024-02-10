@@ -58,33 +58,75 @@ list(
   ## Read sources
   ## *************************************************
   
-  ## Read in whole en_US data - probably not required
+  ## Read in whole datasets
+  ## Twitter
+  tar_target(
+      read_en_us_data_twitter,
+      full_text_data(file_path = en_us_data_twitter_path)
+      ),
+  
   ## Blogs
-  # tar_target(
-  #   read_en_us_data_blogs,
-  #   readtext::readtext(file = en_us_data_blogs_path)
-  # )
+  tar_target(
+      read_en_us_data_blogs,
+      full_text_data(file_path = en_us_data_blogs_path)
+  ),
+
+
+  ## News
+  tar_target(
+      read_en_us_data_news,
+      full_text_data(file_path = en_us_data_news_path)
+  ),
+  
+  
+  ## Create summary tables
+  
+  ## Twitter
+  tar_target(
+      meta_twitter,
+      meta_summary_function(text_data = read_en_us_data_twitter, source = "Twitter")
+  ),
+  
+  ## Blogs
+  tar_target(
+      meta_blogs,
+      meta_summary_function(text_data = read_en_us_data_blogs, source = "Blogs")
+  ),
+  
+  
+  ## News
+  tar_target(
+      meta_news,
+      meta_summary_function(text_data = read_en_us_data_news, source = "News")
+  ),
+  
+  
+  ## Combine into one table
+  tar_target(
+      meta_summary,
+      rbind(meta_twitter, meta_blogs, meta_news)
+  ),
   
   
   ## Read sample of twitter data and returns vector
   tar_target(
       sample_en_us_data_twitter,
-      sample_text_data(file_path = en_us_data_twitter_path,
-                       sample_size = 1000)
+      sample_text_data(full_text = read_en_us_data_twitter,
+                       sample_size = 10000)
   ),
   
   ## Read sample of blogs data and returns vector
   tar_target(
       sample_en_us_data_blogs,
-      sample_text_data(file_path = en_us_data_blogs_path,
-                       sample_size = 1000)
+      sample_text_data(full_text = read_en_us_data_blogs,
+                       sample_size = 10000)
   ),
   
   ## Read sample of news data and returns vector
   tar_target(
       sample_en_us_data_news,
-      sample_text_data(file_path = en_us_data_news_path,
-                       sample_size = 1000)
+      sample_text_data(full_text = read_en_us_data_news,
+                       sample_size = 10000)
   ),
   
   

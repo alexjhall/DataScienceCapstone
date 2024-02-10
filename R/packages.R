@@ -4,6 +4,7 @@
 
 ## Set target-specific options such as packages.
 library(tidyverse)
+library(tibble)
 library(wsvthemes); theme_set(theme_wsv())
 library(scales)
 library(targets)
@@ -36,6 +37,7 @@ library(tidytext)
 library(readtext)
 library(stopwords)
 library(sentimentr) ## For removing profanity
+library(stringr)
 
 
 

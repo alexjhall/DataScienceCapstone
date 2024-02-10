@@ -2,6 +2,142 @@
 ## Ignored by command sourcing functions from _targets.R
 
 
+## working 10th Feb 2024
+df <- tar_read(preprocess_tokenise)
+
+## counts
+df %>% count(word, sort = TRUE)
+
+
+## grouping?
+df %>%
+    dplyr::group_by(column_label) %>%
+    count(word, sort = TRUE)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## sample data
+sample_data <- tar_read(sample_en_us_data_twitter)
+
+
+## no profan data
+noprofan <- tar_read(twitter_noprofan)
+
+
+length(noprofan)/length(sample_data)
+
+
+
+
+
+
+
+## read summary table
+summary_table <- tar_read(meta_summary)
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Try summary stats
+# text_data <- tar_read(sample_en_us_data_twitter)
+
+text_data <- tar_read(read_en_us_data_twitter)
+
+## Source
+text_source <- "Twitter"
+
+
+## size
+# print(object.size(text_data), units = "auto")
+
+text_size <- print(object.size(text_data), units = "auto")
+
+print(x)
+
+
+x <- as.numeric(object.size(text_data))
+
+x
+
+## length
+length(text_data)
+
+## total number of words
+words_per_line <- str_count(text_data, pattern = "\\S+")
+
+total_words <- sum(words_per_line)
+
+## avg number of words
+avg_words_per_line <- mean(words_per_line)
+
+
+## build df
+summary_df <- tibble(
+    Source = 
+)
+
+
+
+
+
+for (thing in ls()) {
+    print(
+        object.size(
+            get(thing)
+        ),
+        units='auto')
+}
+
+
+
+
+# print(object.size(get(text_data)), units='auto')
+
+print(object.size(get(text_data), units='auto'))
+
+
+
+print(object.size(text_data), units = "auto")
+
+
+lapply(text_data, length)
+
+length(text_data)
+
+
+
+stri_count(text_data, regex="\\S+")
+
+
+str_count(text_data, pattern = "\\S+")
+
+
+
+text_data[1:10]
+
+
+
 
 ## Try preprocess and tokenise df.
 ## Try combined df.

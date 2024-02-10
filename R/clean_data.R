@@ -75,13 +75,15 @@ preprocess_tokenise_function <- function (data){
             output = word
         ) %>%
         dplyr::filter(!grepl('[[:digit:]]', word)) %>%
-        anti_join(stop_words)
+        anti_join(stop_words) %>%
+        rename(text_source = column_label)
     
     
     ## Specify what to return
     return(data_unnest)
     
 }
+
 
 
 

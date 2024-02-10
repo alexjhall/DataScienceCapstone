@@ -1,0 +1,157 @@
+---
+title: "Task 2 - Exploratory Data Analysis"
+subtitle: "John Hopkins University Data Science Specialisation"
+author: "Alex Hall"
+format: html
+---
+
+```{r, echo = FALSE, warning=FALSE, message=FALSE}
+## Load packages
+source(paste0(here::here(), "/R/packages.R"))
+
+
+## Set options?
+
+## Read data
+word_df <- tar_read(preprocess_tokenise, store = here("_targets"))
+
+
+
+
+
+```
+
+
+# Introduction
+## Background
+This report represents 'Task 2' of the capstone project, as part of the John Hopkins University Data Science Specialisation.
+The aim of the capstone project is to build a predictive text model that can predict the next word in a sentence. This model will be used for an R Shiny dashboard product and accompanying presentation.
+
+Task 2 follows initial data loading and cleaning, described in more detail later on in this report, and aims to explore the data in more detail. Specific questions are outlined below.
+
+
+## Report aims
+
+### Tasks to accomplish
+
+- Exploratory analysis - perform a thorough exploratory analysis of the data, understanding the distribution of words and relationship between the words in the corpora. 
+- Understand frequencies of words and word pairs - build figures and tables to understand variation in the frequencies of words and word pairs in the data.
+
+### Questions to consider
+
+- Some words are more frequent than others - what are the distributions of word frequencies? 
+- What are the frequencies of 2-grams and 3-grams in the dataset? 
+- How many unique words do you need in a frequency sorted dictionary to cover 50% of all word instances in the language? 90%? 
+- How do you evaluate how many of the words come from foreign languages? 
+- Can you think of a way to increase the coverage -- identifying words that may not be in the corpora or using a smaller number of words in the dictionary to cover the same number of phrases?
+
+
+# Data
+## Data sources
+The raw data for this project was text in four languages: English, German, Finnish and Russian. For each language, there were three text files for text sourced from Twitter, News and Blogs. As an English speaker, I chose to only use the English language text files. 
+
+## Data source summary
+The following table shows a summary of the three source files. 
+
+```{r, echo = FALSE}
+tar_read(meta_summary, store = here("_targets")) %>%
+    kable()
+
+```
+
+
+## Sampling
+Given each source was a large dataset, initial exploration and modelling was conducted on a sample. If the amount of data turned out to be a problem, then more data could be sampled in the future.
+
+In order to not bias the dataset, an equal number of lines were randomly sampled from each source, even though each had a very different number of lines. 10,000 was chosen as an arbitrary round number that made up nearly 10% of the Blogs dataset.
+
+
+# Transformations
+## Remove profanity
+Course instructions in the first week suggested removing profanity from the data so that offensive words would not be modelled and therefore suggested as part of the prediction. 
+
+This was done on the raw text using the sentimentr package's profanity() function to detect instances of profanity in a document and remove that document from the dataset. In practice, this removed <5% of documents so was deemed acceptable. The alternative would have been to remove single words which would have produced unnatural n-grams.
+
+This was done before further pre-processing for two reasons. Firstly so that further steps would run more quickly with a slightly reduced dataset. Also, the profanity detection function depended on sentences, which could not be determined if punctuation was removed.
+
+## Further preprocessing
+After documents containing profanity were removed, further text reprocessing was conducted to manipulate the data into a form suitable for text predictive models. This included removing digits, punctuation and stop words.
+
+
+# Single word exploration
+
+
+Overall frequency
+
+```{r}
+## Count by word
+count_word_df <- 
+    word_df %>% count(word, sort = TRUE) %>%
+    head(25) %>%
+    mutate(word = reorder(word, n))
+
+## plot
+count_word_df %>%
+    ggplot(aes(y = word, x = n)) +
+    geom_col()
+
+
+```
+
+
+
+Frequency by source
+
+```{r}
+## Count by word
+count_word_df <-
+    word_df %>%
+    dplyr::group_by(text_source) %>%
+    count(word, sort = TRUE) %>%
+    head(25) %>%
+    mutate(word = reorder(word, n))
+
+## plot
+count_word_df %>%
+    ggplot(aes(y = word, x = n)) +
+    geom_col() +
+    facet_wrap(vars(text_source), scales="free")
+    
+
+
+```
+
+Overall histogram
+
+
+
+Histogram by source
+
+
+
+How many with single mentions?
+
+
+
+
+
+	• Single words
+		○ Plain ordered freq
+		○ Distribution (expect long tail)
+		○ How many with single mentions?
+		○ Some sort of correlation…
+			§ Testing which groups of words appear together?
+			§ Can build network plot for this?
+			§ Maybe not requried…
+	• Bigrams
+		○ As above
+		○ Network chart
+	• Trigrams
+		○ As above
+		○ Network chart
+	• Coverage question
+Non-english language question
+
+
+
+
