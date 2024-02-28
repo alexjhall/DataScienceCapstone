@@ -169,13 +169,27 @@ list(
   ),
   
   
-  ## Pre-processing and tokenisation
+  ## Pre-processing and tokenisation into single words
   tar_target(
       preprocess_tokenise,
       preprocess_tokenise_function(combine_source_vectors)
 
+  ),
+  
+  
+  ## Pre-processing and tokenisation into bigrams
+  tar_target(
+      preprocess_tokenise_bigram,
+      preprocess_bigram_function(combine_source_vectors)
+      
+  ),
+  
+  ## Pre-processing and tokenisation into trigrams
+  tar_target(
+      preprocess_tokenise_trigram,
+      preprocess_trigram_function(combine_source_vectors)
+      
   )
- 
   
   
   ## *************************************************

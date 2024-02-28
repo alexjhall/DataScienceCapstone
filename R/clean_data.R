@@ -64,7 +64,7 @@ combine_source_vectors_function <- function(vec_list){
 
 ## Define function to preprocess, including:
 ## remove stop words, digits, punctuation
-## as well as tokenise
+## as well as tokenise into words
 
 preprocess_tokenise_function <- function (data){
     
@@ -85,6 +85,62 @@ preprocess_tokenise_function <- function (data){
 }
 
 
+## Define function to preprocess, including:
+## remove stop words, digits, punctuation
+## as well as tokenise into bi-grams
+
+preprocess_bigram_function <- function (data){
+    
+    data_unnest <- 
+        data %>% 
+        tidytext::unnest_tokens(
+            input = text,
+            output = bigram,
+            token = "ngrams",
+            n = 2
+        ) %>%
+        rename(text_source = column_label) %>%
+        dplyr::filter(!grepl('[[:digit:]]', bigram)) %>%
+        filter(!is.na(bigram)) %>%
+        separate(bigram, c("word1", "word2"), sep = " ") %>%
+        filter(!word1 %in% stop_words$word) %>%
+        filter(!word2 %in% stop_words$word) %>%
+        unite(bigram, word1, word2, sep = " ")
+    
+    
+    ## Specify what to return
+    return(data_unnest)
+    
+}
 
 
+
+## Define function to preprocess, including:
+## remove stop words, digits, punctuation
+## as well as tokenise into tri-grams
+
+preprocess_trigram_function <- function (data){
+    
+    data_unnest <- 
+        data %>% 
+        tidytext::unnest_tokens(
+            input = text,
+            output = trigram,
+            token = "ngrams",
+            n = 3
+        ) %>%
+        rename(text_source = column_label) %>%
+        dplyr::filter(!grepl('[[:digit:]]', trigram)) %>%
+        filter(!is.na(trigram)) %>%
+        separate(trigram, c("word1", "word2", "word3"), sep = " ") %>%
+        filter(!word1 %in% stop_words$word) %>%
+        filter(!word2 %in% stop_words$word) %>%
+        filter(!word3 %in% stop_words$word) %>%
+        unite(trigram, word1, word2, word3, sep = " ")
+    
+    
+    ## Specify what to return
+    return(data_unnest)
+    
+}
 

@@ -2,6 +2,48 @@
 ## Ignored by command sourcing functions from _targets.R
 
 
+## bigram working
+df <- tar_read(combine_source_vectors)
+
+
+## test
+output <- 
+    preprocess_bigram_function(df, "bigram", 2)
+
+
+
+
+
+data_unnest <- 
+    df %>% 
+    tidytext::unnest_tokens(
+        input = text,
+        output = bigram,
+        token = "ngrams",
+        n = 2
+    ) %>%
+    rename(text_source = column_label) %>%
+    dplyr::filter(!grepl('[[:digit:]]', bigram)) %>%
+    separate(bigram, c("word1", "word2"), sep = " ") %>%
+    filter(!word1 %in% stop_words$word) %>%
+    filter(!word2 %in% stop_words$word) %>%
+    unite(bigram, word1, word2, sep = " ")
+
+
+
+# %>%
+#     anti_join(stop_words) %>%
+#     
+
+
+
+
+
+
+
+
+
+
 ## working 10th Feb 2024
 df <- tar_read(preprocess_tokenise)
 

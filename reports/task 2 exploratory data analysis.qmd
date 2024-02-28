@@ -2,7 +2,10 @@
 title: "Task 2 - Exploratory Data Analysis"
 subtitle: "John Hopkins University Data Science Specialisation"
 author: "Alex Hall"
-format: html
+format: 
+    html:
+        fig-width: 12
+        fig-height: 6
 ---
 
 ```{r, echo = FALSE, warning=FALSE, message=FALSE}
@@ -12,11 +15,17 @@ source(paste0(here::here(), "/R/packages.R"))
 
 ## Set options?
 
+
 ## Read data
+
+# Single tokens (words)
 word_df <- tar_read(preprocess_tokenise, store = here("_targets"))
 
+# Bigrams
+bigram_df <- tar_read(preprocess_tokenise_bigram, store = here("_targets"))
 
-
+# Trigrams
+trigram_df <- tar_read(preprocess_tokenise_trigram, store = here("_targets"))
 
 
 ```
@@ -72,7 +81,7 @@ Course instructions in the first week suggested removing profanity from the data
 
 This was done on the raw text using the sentimentr package's profanity() function to detect instances of profanity in a document and remove that document from the dataset. In practice, this removed <5% of documents so was deemed acceptable. The alternative would have been to remove single words which would have produced unnatural n-grams.
 
-This was done before further pre-processing for two reasons. Firstly so that further steps would run more quickly with a slightly reduced dataset. Also, the profanity detection function depended on sentences, which could not be determined if punctuation was removed.
+This was done before further pre-processing for two reasons. Firstly so that further steps would run more quickly with a slightly reduced dataset. Also, the profanity detection function depended on sentences, which could not be determined if punctuation was removed, which is what happens in later pre-processing steps.
 
 ## Further preprocessing
 After documents containing profanity were removed, further text reprocessing was conducted to manipulate the data into a form suitable for text predictive models. This included removing digits, punctuation and stop words.
@@ -81,7 +90,7 @@ After documents containing profanity were removed, further text reprocessing was
 # Single word exploration
 
 
-Overall frequency
+## Overall frequency
 
 ```{r}
 ## Count by word
@@ -100,58 +109,297 @@ count_word_df %>%
 
 
 
-Frequency by source
+## Frequency by source
 
 ```{r}
-## Count by word
-count_word_df <-
+## Count by word - grouped
+count_word_df_grp <-
     word_df %>%
     dplyr::group_by(text_source) %>%
     count(word, sort = TRUE) %>%
-    head(25) %>%
-    mutate(word = reorder(word, n))
+    slice_head(n = 25)
 
 ## plot
-count_word_df %>%
+count_word_df_grp %>%
+    mutate(word = reorder_within(word, n, text_source)) %>%
     ggplot(aes(y = word, x = n)) +
     geom_col() +
-    facet_wrap(vars(text_source), scales="free")
+    facet_wrap(vars(text_source), scales="free") + 
+    scale_y_reordered() 
     
 
 
 ```
 
+## Overall distribution
+
 Overall histogram
+Shows most values appear very few times
+
+
+```{r}
+## Count by word
+count_word_df <- 
+    word_df %>% count(word, sort = TRUE) %>%
+    mutate(word = reorder(word, n))
+
+## plot
+count_word_df %>%
+    ggplot(aes(x = n)) +
+    # geom_histogram(binwidth = 50)
+    geom_boxplot()
+
+
+```
+
+
+```{r, echo = FALSE}
+
+## counts of single vals
+single_word_count <-
+    nrow(count_word_df[count_word_df$n ==1,])
+
+## prop of count of single vals out of total.
+single_word_prop <-
+    single_word_count / nrow(count_word_df)
+
+
+### Twitter
+count_word_df_twitter <-
+    count_word_df_grp %>%
+    filter(text_source == "Twitter")
+
+## counts of single vals
+single_word_count_twitter <-
+    nrow(count_word_df_twitter[count_word_df_twitter$n ==1,])
+
+## prop of count of single vals out of total.
+single_word_prop_twitter <-
+    single_word_count_twitter / nrow(count_word_df_twitter)
+
+           
+### News
+count_word_df_news <-
+    count_word_df_grp %>%
+    filter(text_source == "News")
+
+## counts of single vals
+single_word_count_news <-
+    nrow(count_word_df_news[count_word_df_news$n ==1,])
+
+## prop of count of single vals out of total.
+single_word_prop_news <-
+    single_word_count_news / nrow(count_word_df_news)
 
 
 
+### Blogs
+count_word_df_blogs <-
+    count_word_df_grp %>%
+    filter(text_source == "Blogs")
+
+
+## counts of single vals
+single_word_count_blogs <-
+    nrow(count_word_df_blogs[count_word_df_blogs$n ==1,])
+
+## prop of count of single vals out of total.
+single_word_prop_blogs <-
+    single_word_count_blogs / nrow(count_word_df_blogs)
+
+
+
+
+
+```
+
+
+## Distribution by source
 Histogram by source
+Twitter words...
+suggests greater range of words. More words mentioned only once. back up with summary stats.
 
 
 
+
+```{r}
+
+## Count by word - grouped
+count_word_df_grp <-
+    word_df %>%
+    dplyr::group_by(text_source) %>%
+    count(word, sort = TRUE) %>%
+    mutate(word = reorder(word, n))
+
+## medians
+median_word_df_grp <-
+    count_word_df_grp %>%
+    summarise(median = median(n))
+
+## plot
+count_word_df_grp %>%
+    ggplot(aes(x = n, group = text_source, colour = text_source)) +
+    # geom_histogram(binwidth = 50)
+    geom_boxplot() +
+    scale_x_continuous(limits = c(0, 100))
+
+
+
+```
+
+
+## Number of unique instances
 How many with single mentions?
+above.
+
+
+
+
+# Bigram exploration
+
+## Overall frequency
+
+```{r}
+## Count by bigram
+count_bigram_df <- 
+    bigram_df %>% count(bigram, sort = TRUE) %>%
+    head(25) %>%
+    mutate(bigram = reorder(bigram, n))
+
+## plot
+count_bigram_df %>%
+    ggplot(aes(y = bigram, x = n)) +
+    geom_col()
+
+
+```
+
+
+## Frequency by source
+
+
+```{r}
+## Count by word - grouped
+count_bigram_df_grp <-
+    bigram_df %>%
+    dplyr::group_by(text_source) %>%
+    count(bigram, sort = TRUE) %>%
+    slice_head(n = 25)
+
+
+## plot
+count_bigram_df_grp %>%
+    mutate(bigram = reorder_within(bigram, n, text_source)) %>%
+    ggplot(aes(y = bigram, x = n)) +
+    geom_col() +
+    facet_wrap(vars(text_source), scales="free") +
+    scale_y_reordered() 
+    
+
+
+```
+
+
+
+
+# Trigram exploration
+
+## Overall frequency
+
+```{r}
+## Count by trigram
+count_trigram_df <- 
+    trigram_df %>% count(trigram, sort = TRUE) %>%
+    head(25) %>%
+    mutate(trigram = reorder(trigram, n))
+
+## plot
+count_trigram_df %>%
+    ggplot(aes(y = trigram, x = n)) +
+    geom_col()
+
+
+```
+
+
+## Frequency by source
+
+
+```{r}
+## Count by word - grouped
+count_trigram_df_grp <-
+    trigram_df %>%
+    dplyr::group_by(text_source) %>%
+    count(trigram, sort = TRUE) %>%
+    slice_head(n = 25)
+
+
+## plot
+count_trigram_df_grp %>%
+    mutate(trigram = reorder_within(trigram, n, text_source)) %>%
+    ggplot(aes(y = trigram, x = n)) +
+    geom_col() +
+    facet_wrap(vars(text_source), scales="free") +
+    scale_y_reordered() 
+    
+
+
+```
+
+
+
+# Unique words required for coverage
+
+Look at cumsum with %
+
+```{r}
+## Count by word, with cumulative proportion and row number
+count_word_df <- 
+    word_df %>% count(word, sort = TRUE) %>%
+    mutate(word = reorder(word, n)) %>%
+    mutate(
+        cum_prop = cumsum(n) / sum(n),
+        no_words = row_number())
+
+## work out min number of words
+cov_words_50 <-
+    count_word_df %>%
+    filter(cum_prop >= 0.50) %>%
+    select(no_words) %>%
+    summarise(min_value = min(no_words)) %>%
+    pull()
+
+
+## work out min number of words
+cov_words_90 <-
+    count_word_df %>%
+    filter(cum_prop >= 0.90) %>%
+    select(no_words) %>%
+    summarise(min_value = min(no_words)) %>%
+    pull()
+
+
+```
+
+## 50% coverage
 
 
 
 
 
-	• Single words
-		○ Plain ordered freq
-		○ Distribution (expect long tail)
-		○ How many with single mentions?
-		○ Some sort of correlation…
-			§ Testing which groups of words appear together?
-			§ Can build network plot for this?
-			§ Maybe not requried…
-	• Bigrams
-		○ As above
-		○ Network chart
-	• Trigrams
-		○ As above
-		○ Network chart
-	• Coverage question
-Non-english language question
+## 90% coverage
 
 
+
+
+
+
+# Identify foreign languages
+
+
+
+
+Link to repo: 
+full code etc
 
 
