@@ -399,6 +399,11 @@ cov_words_90 <-
 
 
 
+
+could also use...
+English-language spellchecker (hunspell_check)
+
+
 Link to repo: 
 full code etc
 

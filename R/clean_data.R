@@ -59,7 +59,8 @@ combine_source_vectors_function <- function(vec_list){
 }
 
 
-
+## *************************************************
+## First set of functions informs EDA milestone report, removes stopwords
 
 
 ## Define function to preprocess, including:
@@ -137,6 +138,181 @@ preprocess_trigram_function <- function (data){
         filter(!word2 %in% stop_words$word) %>%
         filter(!word3 %in% stop_words$word) %>%
         unite(trigram, word1, word2, word3, sep = " ")
+    
+    
+    ## Specify what to return
+    return(data_unnest)
+    
+}
+
+
+## Define function to preprocess, including:
+## remove stop words, digits, punctuation
+## as well as tokenise into quad-grams
+
+preprocess_quadgram_function <- function (data){
+    
+    data_unnest <- 
+        data %>% 
+        tidytext::unnest_tokens(
+            input = text,
+            output = quadgram,
+            token = "ngrams",
+            n = 4
+        ) %>%
+        rename(text_source = column_label) %>%
+        dplyr::filter(!grepl('[[:digit:]]', quadgram)) %>%
+        filter(!is.na(quadgram)) %>%
+        separate(quadgram, c("word1", "word2", "word3", "word4"), sep = " ") %>%
+        filter(!word1 %in% stop_words$word) %>%
+        filter(!word2 %in% stop_words$word) %>%
+        filter(!word3 %in% stop_words$word) %>%
+        filter(!word4 %in% stop_words$word) %>%
+        unite(quadgram, word1, word2, word3, word4, sep = " ")
+    
+    
+    ## Specify what to return
+    return(data_unnest)
+    
+}
+
+
+
+
+
+## *************************************************
+## Second set of functions is for later modelling
+## labelled as 'premodel'
+## first set can be assumed to be 'EDA'
+
+## Also goes up to sixgrams
+
+# Does not remove stopwords
+# Does other steps to incorporate <UNK> etc etc
+
+
+## Unigram
+preprocess_tokenise_premodel_function <- function (data){
+    
+    data_unnest <- 
+        data %>% 
+        tidytext::unnest_tokens(
+            input = text,
+            output = word
+        ) %>%
+        dplyr::filter(!grepl('[[:digit:]]', word)) %>%
+        rename(text_source = column_label)
+    
+    
+    ## Specify what to return
+    return(data_unnest)
+    
+}
+
+
+## Bigram
+preprocess_bigram_premodel_function <- function (data){
+    
+    data_unnest <- 
+        data %>% 
+        tidytext::unnest_tokens(
+            input = text,
+            output = bigram,
+            token = "ngrams",
+            n = 2
+        ) %>%
+        rename(text_source = column_label) %>%
+        dplyr::filter(!grepl('[[:digit:]]', bigram)) %>%
+        filter(!is.na(bigram))
+    
+    
+    ## Specify what to return
+    return(data_unnest)
+    
+}
+
+
+
+## Trigram
+preprocess_trigram_premodel_function <- function (data){
+    
+    data_unnest <- 
+        data %>% 
+        tidytext::unnest_tokens(
+            input = text,
+            output = trigram,
+            token = "ngrams",
+            n = 3
+        ) %>%
+        rename(text_source = column_label) %>%
+        dplyr::filter(!grepl('[[:digit:]]', trigram)) %>%
+        filter(!is.na(trigram))
+    
+    ## Specify what to return
+    return(data_unnest)
+    
+}
+
+
+## Quadgram
+preprocess_quadgram_premodel_function <- function (data){
+    
+    data_unnest <- 
+        data %>% 
+        tidytext::unnest_tokens(
+            input = text,
+            output = quadgram,
+            token = "ngrams",
+            n = 4
+        ) %>%
+        rename(text_source = column_label) %>%
+        dplyr::filter(!grepl('[[:digit:]]', quadgram)) %>%
+        filter(!is.na(quadgram))
+    
+    
+    ## Specify what to return
+    return(data_unnest)
+    
+}
+
+
+## Fivegram
+preprocess_fivegram_premodel_function <- function (data){
+    
+    data_unnest <- 
+        data %>% 
+        tidytext::unnest_tokens(
+            input = text,
+            output = fivegram,
+            token = "ngrams",
+            n = 5
+        ) %>%
+        rename(text_source = column_label) %>%
+        dplyr::filter(!grepl('[[:digit:]]', fivegram)) %>%
+        filter(!is.na(fivegram))
+    
+    
+    ## Specify what to return
+    return(data_unnest)
+    
+}
+
+
+
+## Sixgram
+preprocess_sixgram_premodel_function <- function (data){
+    
+    data_unnest <- 
+        data %>% 
+        tidytext::unnest_tokens(
+            input = text,
+            output = sixgram,
+            token = "ngrams",
+            n = 6
+        ) %>%
+        rename(text_source = column_label) %>%
+        dplyr::filter(!grepl('[[:digit:]]', sixgram)) %>%
+        filter(!is.na(sixgram))
     
     
     ## Specify what to return

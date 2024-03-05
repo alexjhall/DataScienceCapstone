@@ -135,6 +135,9 @@ list(
   ## Cleaning
   ## *************************************************
   
+  ## *************************************************
+  ## Remove profanity
+  
   ## Remove profanity - twitter
   tar_target(
       twitter_noprofan,
@@ -168,6 +171,9 @@ list(
       
   ),
   
+  ## *************************************************
+  ## Tokenisation, without stopwords
+  
   
   ## Pre-processing and tokenisation into single words
   tar_target(
@@ -189,12 +195,66 @@ list(
       preprocess_tokenise_trigram,
       preprocess_trigram_function(combine_source_vectors)
       
+  ),
+  
+  ## Pre-processing and tokenisation into quadgrams
+  tar_target(
+      preprocess_tokenise_quadgram,
+      preprocess_quadgram_function(combine_source_vectors)
+      
+  ),
+  
+  
+  ## *************************************************
+  ## Tokenisation with stop words included
+  
+  
+  ## Pre-processing and tokenisation into single words
+  tar_target(
+      preprocess_tokenise_premodel,
+      preprocess_tokenise_premodel_function(combine_source_vectors)
+      
+  ),
+  
+  
+  ## Pre-processing and tokenisation into bigrams
+  tar_target(
+      preprocess_tokenise_bigram_premodel,
+      preprocess_bigram_premodel_function(combine_source_vectors)
+      
+  ),
+  
+  ## Pre-processing and tokenisation into trigrams
+  tar_target(
+      preprocess_tokenise_trigram_premodel,
+      preprocess_trigram_premodel_function(combine_source_vectors)
+      
+  ),
+  
+  ## Pre-processing and tokenisation into quadgrams
+  tar_target(
+      preprocess_tokenise_quadgram_premodel,
+      preprocess_quadgram_premodel_function(combine_source_vectors)
+      
+  ),
+  
+  ## Pre-processing and tokenisation into fivegrams
+  tar_target(
+      preprocess_tokenise_fivegram_premodel,
+      preprocess_fivegram_premodel_function(combine_source_vectors)
+      
+  ),
+  
+  ## Pre-processing and tokenisation into sixgrams
+  tar_target(
+      preprocess_tokenise_sixgram_premodel,
+      preprocess_sixgram_premodel_function(combine_source_vectors)
+      
   )
   
   
-  ## *************************************************
-  ## Document Term Matrix
-  ## *************************************************
+  
+  
   
   
   

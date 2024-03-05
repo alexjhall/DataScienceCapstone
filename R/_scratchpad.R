@@ -2,6 +2,272 @@
 ## Ignored by command sourcing functions from _targets.R
 
 
+
+
+
+
+
+
+
+
+## Working to build function.
+
+
+
+## Create markov chain model - third approach
+## using version with stop_words
+
+## normal size
+## Look at bigram model
+data <- tar_read(preprocess_tokenise_bigram_premodel)
+
+## define sample size
+sample_n <- 10000
+
+## subset data
+# n sample as above
+# actual text bigrams only
+data_small <- data[sample(nrow(data), sample_n), 3]
+
+
+## create dataframe
+bigram_probs <-
+    data_small  %>%
+    # data  %>%
+    separate(bigram, c("current_word", "next_word"), sep = " ") %>%
+    group_by(current_word) %>%
+    mutate(current_word_count = n()) %>%
+    ungroup() %>%
+    group_by(current_word, next_word) %>%
+    mutate(
+        next_word_count = n(),
+        next_word_prob = next_word_count / current_word_count
+    ) %>%
+    ungroup() %>%
+    select(
+        current_word, 
+        next_word,
+        next_word_prob
+    ) %>%
+    distinct()
+
+
+## check size
+print(object.size(bigram_probs), units = "Mb", standard = "auto", digits = 1L)
+
+
+
+
+
+
+
+
+
+
+
+
+## Create markov chain model - second approach
+
+
+## normal size
+## Look at bigram model
+data <- tar_read(preprocess_tokenise_bigram)
+
+## define sample size
+sample_n <- 100000
+
+## subset data
+# n sample as above
+# actual text bigrams only
+data_small <- data[sample(nrow(data), sample_n), 3]
+
+
+## create dataframe
+bigram_probs <-
+    # data_small  %>%
+    data  %>%
+    separate(bigram, c("current_word", "next_word"), sep = " ") %>%
+    group_by(current_word) %>%
+    mutate(current_word_count = n()) %>%
+    ungroup() %>%
+    group_by(current_word, next_word) %>%
+    mutate(
+        next_word_count = n(),
+        next_word_prob = next_word_count / current_word_count
+    ) %>%
+    ungroup() %>%
+    select(
+        current_word, 
+        next_word,
+        next_word_prob
+    ) %>%
+    distinct()
+
+
+## check size
+print(object.size(bigram_probs), units = "Mb", standard = "auto", digits = 1L)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Create markov chain model - first approach
+
+
+# ## Look at bigram model
+# data <- tar_read(preprocess_tokenise_bigram)
+# 
+# ## reduce size
+# data_small <- data[1:2000,]
+# bigram_vec <- data_small$bigram
+# 
+# # count_bigram_df <- 
+# #     data_small %>% count(bigram, sort = TRUE)
+# 
+# bigram_vec <- data_small$bigram
+
+
+
+
+## normal size
+## Look at bigram model
+data <- tar_read(preprocess_tokenise_bigram)
+
+## define sample size
+sample_n <- 1000
+
+# data_small <- data[1:10000,]
+data_small <- data[sample(nrow(data), sample_n), ]
+bigram_vec <- data_small$bigram
+
+
+## create df
+# bigram_df <- tibble(bigram = bigram_vec, count = rep(1, length(bigram_vec)))
+bigram_df <- tibble(bigram = bigram_vec)
+
+
+# calc transition probabilities
+transition_probs <- 
+    bigram_df  %>%
+    mutate(current_bigram = bigram,
+           next_bigram = lead(bigram)) %>%
+    filter(!is.na(next_bigram)) %>%
+    group_by(current_bigram) %>%
+    mutate(current_bigram_count = n()) %>%
+    ungroup() %>%
+    group_by(current_bigram, next_bigram) %>%
+    mutate(
+        next_bigram_count = n(),
+        next_bigram_prob = next_bigram_count / current_bigram_count
+        ) %>%
+    ungroup() %>%
+    select(
+        current_bigram, 
+        next_bigram,
+        next_bigram_prob
+    ) %>%
+    distinct()
+    
+
+## transition matrix
+transition_matrix_tbl <-
+    transition_probs %>%
+    pivot_wider(
+        names_from = next_bigram,
+        values_from = next_bigram_prob,
+        values_fill = 0
+    ) 
+
+# just names
+# transition_matrix_tbl_names <- transition_matrix_tbl$current_bigram
+
+# just probs
+transition_matrix_tbl_probs <- 
+    transition_matrix_tbl %>%
+    select(-current_bigram)
+
+## convert to matrix, excluding first col which is bigram names
+transition_matrix <- 
+    as.matrix(transition_matrix_tbl_probs)
+
+# ## remove previous objects
+# rm(list=setdiff(ls(), "transition_matrix"))
+# 
+# ## clear memory
+# gc()
+
+## Convert matrix to markov chain?
+# markov_model <- new("markovchain",
+#                     transitionMatrix = transition_matrix,
+#                     name = "testmarkov")
+
+## save object down
+# saveRDS(markov_model, file = "test_markov_model.RDS") 
+
+
+
+## testing markov_model object
+# plot(markov_model)
+
+
+markovchain::predict(markov_model)
+
+
+
+
+
+predictive_text <- function(text, num_word){
+    
+    suggest <- markov_model$estimate[ tolower(text), ] %>%
+        sort(decreasing = T) %>% 
+        head(num_word) 
+    
+    suggest <- suggest[ suggest > 0] %>% 
+        names() %>% 
+        str_extract(pattern = "\\s(.*)") %>% 
+        str_remove("[ ]")
+    
+    return(suggest)
+}
+
+predictive_text("eye health", 5) 
+
+
+
+suggest <- markov_bigram$estimate[ tolower("bus stop"), ] %>%
+    sort(decreasing = T) %>% 
+    head(5)
+
+
+## next
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## bigram working
 df <- tar_read(combine_source_vectors)
 

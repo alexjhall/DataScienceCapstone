@@ -38,8 +38,10 @@ library(readtext)
 library(stopwords)
 library(sentimentr) ## For removing profanity
 library(stringr)
+library(cld2) ## For detecting language
 
-
+# markov chain
+library(markovchain)
 
 # For reversing list structure
 library(paleotree)
