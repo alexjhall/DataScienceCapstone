@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.330">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Alex Hall">
+
+<title>Data Science Capstone - Milestone Report - EDA</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="milestone-report_files/libs/clipboard/clipboard.min.js"></script>
+<script src="milestone-report_files/libs/quarto-html/quarto.js"></script>
+<script src="milestone-report_files/libs/quarto-html/popper.min.js"></script>
+<script src="milestone-report_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="milestone-report_files/libs/quarto-html/anchor.min.js"></script>
+<link href="milestone-report_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="milestone-report_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="milestone-report_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="milestone-report_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="milestone-report_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body>
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article toc-left">
+<div id="quarto-sidebar-toc-left" class="sidebar toc-left">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction"><span class="header-section-number">1</span> Introduction</a>
+  <ul>
+  <li><a href="#background" id="toc-background" class="nav-link" data-scroll-target="#background"><span class="header-section-number">1.1</span> Background</a></li>
+  <li><a href="#task-2-aims" id="toc-task-2-aims" class="nav-link" data-scroll-target="#task-2-aims"><span class="header-section-number">1.2</span> Task 2 aims</a>
+  <ul class="collapse">
+  <li><a href="#tasks-to-accomplish" id="toc-tasks-to-accomplish" class="nav-link" data-scroll-target="#tasks-to-accomplish"><span class="header-section-number">1.2.1</span> Tasks to accomplish</a></li>
+  <li><a href="#questions-to-consider" id="toc-questions-to-consider" class="nav-link" data-scroll-target="#questions-to-consider"><span class="header-section-number">1.2.2</span> Questions to consider</a></li>
+  </ul></li>
+  <li><a href="#task-3-aims" id="toc-task-3-aims" class="nav-link" data-scroll-target="#task-3-aims"><span class="header-section-number">1.3</span> Task 3 aims</a>
+  <ul class="collapse">
+  <li><a href="#tasks-to-accomplish-1" id="toc-tasks-to-accomplish-1" class="nav-link" data-scroll-target="#tasks-to-accomplish-1"><span class="header-section-number">1.3.1</span> Tasks to accomplish</a></li>
+  <li><a href="#questions-to-consider-1" id="toc-questions-to-consider-1" class="nav-link" data-scroll-target="#questions-to-consider-1"><span class="header-section-number">1.3.2</span> Questions to consider</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#data" id="toc-data" class="nav-link" data-scroll-target="#data"><span class="header-section-number">2</span> Data</a>
+  <ul>
+  <li><a href="#data-sources" id="toc-data-sources" class="nav-link" data-scroll-target="#data-sources"><span class="header-section-number">2.1</span> Data sources</a></li>
+  <li><a href="#data-source-summary" id="toc-data-source-summary" class="nav-link" data-scroll-target="#data-source-summary"><span class="header-section-number">2.2</span> Data source summary</a></li>
+  <li><a href="#sampling" id="toc-sampling" class="nav-link" data-scroll-target="#sampling"><span class="header-section-number">2.3</span> Sampling</a></li>
+  </ul></li>
+  <li><a href="#transformations" id="toc-transformations" class="nav-link" data-scroll-target="#transformations"><span class="header-section-number">3</span> Transformations</a>
+  <ul>
+  <li><a href="#remove-profanity" id="toc-remove-profanity" class="nav-link" data-scroll-target="#remove-profanity"><span class="header-section-number">3.1</span> Remove profanity</a></li>
+  <li><a href="#further-preprocessing" id="toc-further-preprocessing" class="nav-link" data-scroll-target="#further-preprocessing"><span class="header-section-number">3.2</span> Further preprocessing</a></li>
+  </ul></li>
+  <li><a href="#single-word-unigram-exploration" id="toc-single-word-unigram-exploration" class="nav-link" data-scroll-target="#single-word-unigram-exploration"><span class="header-section-number">4</span> Single word (unigram) exploration</a>
+  <ul>
+  <li><a href="#overall-frequency" id="toc-overall-frequency" class="nav-link" data-scroll-target="#overall-frequency"><span class="header-section-number">4.1</span> Overall frequency</a></li>
+  <li><a href="#frequency-by-source" id="toc-frequency-by-source" class="nav-link" data-scroll-target="#frequency-by-source"><span class="header-section-number">4.2</span> Frequency by source</a></li>
+  <li><a href="#overall-distribution" id="toc-overall-distribution" class="nav-link" data-scroll-target="#overall-distribution"><span class="header-section-number">4.3</span> Overall distribution</a></li>
+  <li><a href="#distribution-by-source" id="toc-distribution-by-source" class="nav-link" data-scroll-target="#distribution-by-source"><span class="header-section-number">4.4</span> Distribution by source</a></li>
+  </ul></li>
+  <li><a href="#bigram-exploration" id="toc-bigram-exploration" class="nav-link" data-scroll-target="#bigram-exploration"><span class="header-section-number">5</span> Bigram exploration</a>
+  <ul>
+  <li><a href="#overall-frequency-1" id="toc-overall-frequency-1" class="nav-link" data-scroll-target="#overall-frequency-1"><span class="header-section-number">5.1</span> Overall frequency</a></li>
+  <li><a href="#frequency-by-source-1" id="toc-frequency-by-source-1" class="nav-link" data-scroll-target="#frequency-by-source-1"><span class="header-section-number">5.2</span> Frequency by source</a></li>
+  </ul></li>
+  <li><a href="#trigram-exploration" id="toc-trigram-exploration" class="nav-link" data-scroll-target="#trigram-exploration"><span class="header-section-number">6</span> Trigram exploration</a>
+  <ul>
+  <li><a href="#overall-frequency-2" id="toc-overall-frequency-2" class="nav-link" data-scroll-target="#overall-frequency-2"><span class="header-section-number">6.1</span> Overall frequency</a></li>
+  <li><a href="#frequency-by-source-2" id="toc-frequency-by-source-2" class="nav-link" data-scroll-target="#frequency-by-source-2"><span class="header-section-number">6.2</span> Frequency by source</a></li>
+  </ul></li>
+  <li><a href="#unique-words-required-for-coverage" id="toc-unique-words-required-for-coverage" class="nav-link" data-scroll-target="#unique-words-required-for-coverage"><span class="header-section-number">7</span> Unique words required for coverage</a>
+  <ul>
+  <li><a href="#coverage" id="toc-coverage" class="nav-link" data-scroll-target="#coverage"><span class="header-section-number">7.1</span> 50% coverage</a></li>
+  <li><a href="#coverage-1" id="toc-coverage-1" class="nav-link" data-scroll-target="#coverage-1"><span class="header-section-number">7.2</span> 90% coverage</a></li>
+  </ul></li>
+  <li><a href="#identify-foreign-languages" id="toc-identify-foreign-languages" class="nav-link" data-scroll-target="#identify-foreign-languages"><span class="header-section-number">8</span> Identify foreign languages</a></li>
+  <li><a href="#plans-for-prediction-algorithm-and-shiny-app" id="toc-plans-for-prediction-algorithm-and-shiny-app" class="nav-link" data-scroll-target="#plans-for-prediction-algorithm-and-shiny-app"><span class="header-section-number">9</span> Plans for prediction algorithm and Shiny app</a>
+  <ul>
+  <li><a href="#questions-to-consider-2" id="toc-questions-to-consider-2" class="nav-link" data-scroll-target="#questions-to-consider-2"><span class="header-section-number">9.1</span> Questions to consider</a>
+  <ul class="collapse">
+  <li><a href="#how-can-you-efficiently-store-an-n-gram-model-think-markov-chains" id="toc-how-can-you-efficiently-store-an-n-gram-model-think-markov-chains" class="nav-link" data-scroll-target="#how-can-you-efficiently-store-an-n-gram-model-think-markov-chains"><span class="header-section-number">9.1.1</span> How can you efficiently store an n-gram model (think Markov Chains)?</a></li>
+  <li><a href="#how-can-you-use-the-knowledge-about-word-frequencies-to-make-your-model-smaller-and-more-efficient" id="toc-how-can-you-use-the-knowledge-about-word-frequencies-to-make-your-model-smaller-and-more-efficient" class="nav-link" data-scroll-target="#how-can-you-use-the-knowledge-about-word-frequencies-to-make-your-model-smaller-and-more-efficient"><span class="header-section-number">9.1.2</span> How can you use the knowledge about word frequencies to make your model smaller and more efficient?</a></li>
+  <li><a href="#how-many-parameters-do-you-need-i.e.-how-big-is-n-in-your-n-gram-model" id="toc-how-many-parameters-do-you-need-i.e.-how-big-is-n-in-your-n-gram-model" class="nav-link" data-scroll-target="#how-many-parameters-do-you-need-i.e.-how-big-is-n-in-your-n-gram-model"><span class="header-section-number">9.1.3</span> How many parameters do you need (i.e.&nbsp;how big is n in your n-gram model)?</a></li>
+  <li><a href="#can-you-think-of-simple-ways-to-smooth-the-probabilities-think-about-giving-all-n-grams-a-non-zero-probability-even-if-they-arent-observed-in-the-data" id="toc-can-you-think-of-simple-ways-to-smooth-the-probabilities-think-about-giving-all-n-grams-a-non-zero-probability-even-if-they-arent-observed-in-the-data" class="nav-link" data-scroll-target="#can-you-think-of-simple-ways-to-smooth-the-probabilities-think-about-giving-all-n-grams-a-non-zero-probability-even-if-they-arent-observed-in-the-data"><span class="header-section-number">9.1.4</span> Can you think of simple ways to “smooth” the probabilities (think about giving all n-grams a non-zero probability even if they aren’t observed in the data)?</a></li>
+  <li><a href="#how-do-you-evaluate-whether-your-model-is-any-good" id="toc-how-do-you-evaluate-whether-your-model-is-any-good" class="nav-link" data-scroll-target="#how-do-you-evaluate-whether-your-model-is-any-good"><span class="header-section-number">9.1.5</span> How do you evaluate whether your model is any good?</a></li>
+  <li><a href="#how-can-you-use-backoff-models-to-estimate-the-probability-of-unobserved-n-grams" id="toc-how-can-you-use-backoff-models-to-estimate-the-probability-of-unobserved-n-grams" class="nav-link" data-scroll-target="#how-can-you-use-backoff-models-to-estimate-the-probability-of-unobserved-n-grams"><span class="header-section-number">9.1.6</span> How can you use backoff models to estimate the probability of unobserved n-grams?</a></li>
+  </ul></li>
+  <li><a href="#prediction-algorithm" id="toc-prediction-algorithm" class="nav-link" data-scroll-target="#prediction-algorithm"><span class="header-section-number">9.2</span> Prediction algorithm</a></li>
+  <li><a href="#shiny-app" id="toc-shiny-app" class="nav-link" data-scroll-target="#shiny-app"><span class="header-section-number">9.3</span> Shiny App</a></li>
+  </ul></li>
+  </ul>
+</nav>
+</div>
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Data Science Capstone - Milestone Report - EDA</h1>
+<p class="subtitle lead">John Hopkins University Data Science Specialisation</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Alex Hall </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="introduction" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Introduction</h1>
+<section id="background" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="background"><span class="header-section-number">1.1</span> Background</h2>
+<p>This milestone report is for the week 2 assignment of the capstone project, as part of the John Hopkins University Data Science Specialisation.</p>
+<p>The aim of the capstone project is to build a predictive text model that can predict the next word in a sentence. This model will be used for an R Shiny dashboard product and accompanying presentation.</p>
+<p>This report summarises tasks 0 (understanding the problem), 1 (getting and cleaning the data), 2 (exploratory data analysis) and 3 (modelling), with particular focus on the latter two. Specific questions are outlined below.</p>
+</section>
+<section id="task-2-aims" class="level2" data-number="1.2">
+<h2 data-number="1.2" class="anchored" data-anchor-id="task-2-aims"><span class="header-section-number">1.2</span> Task 2 aims</h2>
+<section id="tasks-to-accomplish" class="level3" data-number="1.2.1">
+<h3 data-number="1.2.1" class="anchored" data-anchor-id="tasks-to-accomplish"><span class="header-section-number">1.2.1</span> Tasks to accomplish</h3>
+<ul>
+<li>Exploratory analysis - perform a thorough exploratory analysis of the data, understanding the distribution of words and relationship between the words in the corpora.</li>
+<li>Understand frequencies of words and word pairs - build figures and tables to understand variation in the frequencies of words and word pairs in the data.</li>
+</ul>
+</section>
+<section id="questions-to-consider" class="level3" data-number="1.2.2">
+<h3 data-number="1.2.2" class="anchored" data-anchor-id="questions-to-consider"><span class="header-section-number">1.2.2</span> Questions to consider</h3>
+<ul>
+<li>Some words are more frequent than others - what are the distributions of word frequencies?</li>
+<li>What are the frequencies of 2-grams and 3-grams in the dataset?</li>
+<li>How many unique words do you need in a frequency sorted dictionary to cover 50% of all word instances in the language? 90%?</li>
+<li>How do you evaluate how many of the words come from foreign languages?</li>
+<li>Can you think of a way to increase the coverage – identifying words that may not be in the corpora or using a smaller number of words in the dictionary to cover the same number of phrases?</li>
+</ul>
+</section>
+</section>
+<section id="task-3-aims" class="level2" data-number="1.3">
+<h2 data-number="1.3" class="anchored" data-anchor-id="task-3-aims"><span class="header-section-number">1.3</span> Task 3 aims</h2>
+<section id="tasks-to-accomplish-1" class="level3" data-number="1.3.1">
+<h3 data-number="1.3.1" class="anchored" data-anchor-id="tasks-to-accomplish-1"><span class="header-section-number">1.3.1</span> Tasks to accomplish</h3>
+<ul>
+<li>Build basic n-gram model: Using the exploratory analysis you performed, build a basic n-gram model for predicting the next word based on the previous 1, 2, or 3 words.</li>
+<li>Build a model to handle unseen n-grams: In some cases people will want to type a combination of words that does not appear in the corpora. Build a model to handle cases where a particular n-gram isn’t observed.</li>
+</ul>
+</section>
+<section id="questions-to-consider-1" class="level3" data-number="1.3.2">
+<h3 data-number="1.3.2" class="anchored" data-anchor-id="questions-to-consider-1"><span class="header-section-number">1.3.2</span> Questions to consider</h3>
+<ul>
+<li>How can you efficiently store an n-gram model (think Markov Chains)?</li>
+<li>How can you use the knowledge about word frequencies to make your model smaller and more efficient?</li>
+<li>How many parameters do you need (i.e.&nbsp;how big is n in your n-gram model)?</li>
+<li>Can you think of simple ways to “smooth” the probabilities (think about giving all n-grams a non-zero probability even if they aren’t observed in the data) ?</li>
+<li>How do you evaluate whether your model is any good?</li>
+<li>How can you use backoff models to estimate the probability of unobserved n-grams?</li>
+</ul>
+</section>
+</section>
+</section>
+<section id="data" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Data</h1>
+<section id="data-sources" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="data-sources"><span class="header-section-number">2.1</span> Data sources</h2>
+<p>The raw data for this project was text in four languages: English, German, Finnish and Russian. For each language, there were three text files for text sourced from Twitter, News and Blogs. As an English speaker, I chose to only use the English language text files.</p>
+</section>
+<section id="data-source-summary" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="data-source-summary"><span class="header-section-number">2.2</span> Data source summary</h2>
+<p>The following table shows a summary of the three source files.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table data-quarto-postprocess="true" class="table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">Source</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Size (MB)</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Number of lines</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Number of words</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Mean words per line</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">SD words per line</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Twitter</td>
+<td style="text-align: right;">334.48</td>
+<td style="text-align: left;">2,360,148</td>
+<td style="text-align: left;">30,373,543</td>
+<td style="text-align: right;">12.87</td>
+<td style="text-align: right;">6.90</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Blogs</td>
+<td style="text-align: right;">267.76</td>
+<td style="text-align: left;">899,288</td>
+<td style="text-align: left;">37,334,131</td>
+<td style="text-align: right;">41.52</td>
+<td style="text-align: right;">46.27</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">News</td>
+<td style="text-align: right;">269.84</td>
+<td style="text-align: left;">1,010,242</td>
+<td style="text-align: left;">34,372,530</td>
+<td style="text-align: right;">34.02</td>
+<td style="text-align: right;">22.59</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+</section>
+<section id="sampling" class="level2" data-number="2.3">
+<h2 data-number="2.3" class="anchored" data-anchor-id="sampling"><span class="header-section-number">2.3</span> Sampling</h2>
+<p>Given each source was a large dataset, initial exploration and modelling was conducted on a sample. If the amount of data turned out to be a problem, then more data could be sampled in the future.</p>
+<p>In order to not bias the dataset, an equal number of lines were randomly sampled from each source, even though each had a very different number of lines. 10,000 was chosen as an arbitrary round number that made up nearly 10% of the Blogs dataset.</p>
+<p>Data was loaded using <code>readr::read_lines()</code> and then sampled used <code>base::sample()</code>. This report is one step in a ‘Targets’ pipeline so does not include the full code, but it can be found <a href="https://github.com/alexjhall/DataScienceCapstone">here</a>.</p>
+</section>
+</section>
+<section id="transformations" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Transformations</h1>
+<section id="remove-profanity" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="remove-profanity"><span class="header-section-number">3.1</span> Remove profanity</h2>
+<p>Course instructions in the first week suggested removing profanity from the data so that offensive words would not be modelled and therefore suggested as part of the prediction.</p>
+<p>This was done on the raw text using the <code>sentimentr::profanity()</code> function to detect instances of profanity in a document and remove that document from the dataset. In practice, this removed &lt;5% of documents so was deemed acceptable. The alternative would have been to remove single words which would have produced unnatural n-grams.</p>
+<p>This was done before further pre-processing for two reasons. Firstly so that further steps would run more quickly with a slightly reduced dataset. Also, the profanity detection function depended on sentences, which could not be determined if punctuation was removed, which is what happens in later pre-processing steps.</p>
+</section>
+<section id="further-preprocessing" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="further-preprocessing"><span class="header-section-number">3.2</span> Further preprocessing</h2>
+<p>After documents containing profanity were removed, further text reprocessing was conducted to manipulate the data into a form suitable for text predictive models. This was done using the <code>tidytext::unnest_tokens()</code> function and included removing digits, punctuation and stop words.</p>
+</section>
+</section>
+<section id="single-word-unigram-exploration" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Single word (unigram) exploration</h1>
+<section id="overall-frequency" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="overall-frequency"><span class="header-section-number">4.1</span> Overall frequency</h2>
+<p>Across all sources, it appears that the most frequently used words were ‘time’, ‘day’ and ‘people’.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Count by word</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>count_word_df_head <span class="ot">&lt;-</span> </span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    word_df <span class="sc">%&gt;%</span> <span class="fu">count</span>(word, <span class="at">sort =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">head</span>(<span class="dv">25</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">word =</span> <span class="fu">reorder</span>(word, n))</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="do">## plot</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>count_word_df_head <span class="sc">%&gt;%</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y =</span> word, <span class="at">x =</span> n)) <span class="sc">+</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_col</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="milestone-report_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="1152"></p>
+</div>
+</div>
+</section>
+<section id="frequency-by-source" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="frequency-by-source"><span class="header-section-number">4.2</span> Frequency by source</h2>
+<p>By source, there are some more differences. ‘Time’ and ‘people’ are still top for Blogs and News sources, but ‘love’, ‘day’ and ‘rt’ (retweet) are hier for the Twitter source.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Count by word - grouped</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>count_word_df_grp_head <span class="ot">&lt;-</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    word_df <span class="sc">%&gt;%</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">group_by</span>(text_source) <span class="sc">%&gt;%</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">count</span>(word, <span class="at">sort =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">slice_head</span>(<span class="at">n =</span> <span class="dv">25</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="do">## plot</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>count_word_df_grp_head <span class="sc">%&gt;%</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">word =</span> <span class="fu">reorder_within</span>(word, n, text_source)) <span class="sc">%&gt;%</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y =</span> word, <span class="at">x =</span> n)) <span class="sc">+</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_col</span>() <span class="sc">+</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">facet_wrap</span>(<span class="fu">vars</span>(text_source), <span class="at">scales=</span><span class="st">"free"</span>) <span class="sc">+</span> </span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_y_reordered</span>() </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="milestone-report_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="1152"></p>
+</div>
+</div>
+</section>
+<section id="overall-distribution" class="level2" data-number="4.3">
+<h2 data-number="4.3" class="anchored" data-anchor-id="overall-distribution"><span class="header-section-number">4.3</span> Overall distribution</h2>
+<p>Looking at the word frequencies in a boxplot shows a very skewed distribution with a large proportion of words only appearing once, or very few times.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Count by word</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>count_word_df <span class="ot">&lt;-</span> </span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    word_df <span class="sc">%&gt;%</span> <span class="fu">count</span>(word, <span class="at">sort =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">word =</span> <span class="fu">reorder</span>(word, n))</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="do">## plot</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>count_word_df <span class="sc">%&gt;%</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> n)) <span class="sc">+</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># geom_histogram(binwidth = 50)</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_boxplot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="milestone-report_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="1152"></p>
+</div>
+</div>
+</section>
+<section id="distribution-by-source" class="level2" data-number="4.4">
+<h2 data-number="4.4" class="anchored" data-anchor-id="distribution-by-source"><span class="header-section-number">4.4</span> Distribution by source</h2>
+<p>The same overall pattern is observed for each source, but for Twitter, it seems it has a slightly higher proportion of words appearing only once, 61.03% for Twitter as opposed to 50.90% for Blogs. Overall there are 23529 words that only appear once in the corpus (50.27%).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Table calculated above</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="do">## plot</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>count_word_df_grp <span class="sc">%&gt;%</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> n, <span class="at">group =</span> text_source, <span class="at">colour =</span> text_source)) <span class="sc">+</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># geom_histogram(binwidth = 50)</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_x_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">100</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="milestone-report_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="1152"></p>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<table data-quarto-postprocess="true" class="table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">Source</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Words appearing once (n)</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">% of total</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Blogs</td>
+<td style="text-align: right;">14550</td>
+<td style="text-align: left;">50.90%</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">News</td>
+<td style="text-align: right;">14330</td>
+<td style="text-align: left;">50.87%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Twitter</td>
+<td style="text-align: right;">8413</td>
+<td style="text-align: left;">61.03%</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+</section>
+</section>
+<section id="bigram-exploration" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> Bigram exploration</h1>
+<section id="overall-frequency-1" class="level2" data-number="5.1">
+<h2 data-number="5.1" class="anchored" data-anchor-id="overall-frequency-1"><span class="header-section-number">5.1</span> Overall frequency</h2>
+<p>Interestingly, place names are the most frequent when looking at bigrams. Given that Twitter, News and Blogs would be heavily influenced by current affairs at the time, it is possible that coincidentally something had happened in St Louis, Los Angeles and San Fransisco at the time this data was collected.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Count by bigram</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>count_bigram_df <span class="ot">&lt;-</span> </span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    bigram_df <span class="sc">%&gt;%</span> <span class="fu">count</span>(bigram, <span class="at">sort =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">head</span>(<span class="dv">25</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">bigram =</span> <span class="fu">reorder</span>(bigram, n))</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="do">## plot</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>count_bigram_df <span class="sc">%&gt;%</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y =</span> bigram, <span class="at">x =</span> n)) <span class="sc">+</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_col</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="milestone-report_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="1152"></p>
+</div>
+</div>
+</section>
+<section id="frequency-by-source-1" class="level2" data-number="5.2">
+<h2 data-number="5.2" class="anchored" data-anchor-id="frequency-by-source-1"><span class="header-section-number">5.2</span> Frequency by source</h2>
+<p>By source the above observations hold true for the News source, but not Blogs or Twitter. Mentions of special occasions (Mother’s Day and Birthday) are frequent in the Twitter source, particularly ‘Happy Birthday’ appearing twice as many times as the next bigram. For Blogs, the bigram frequencies are more evenly dispersed numerically but also in topics.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Count by word - grouped</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>count_bigram_df_grp <span class="ot">&lt;-</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    bigram_df <span class="sc">%&gt;%</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">group_by</span>(text_source) <span class="sc">%&gt;%</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">count</span>(bigram, <span class="at">sort =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">slice_head</span>(<span class="at">n =</span> <span class="dv">25</span>)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="do">## plot</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>count_bigram_df_grp <span class="sc">%&gt;%</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">bigram =</span> <span class="fu">reorder_within</span>(bigram, n, text_source)) <span class="sc">%&gt;%</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y =</span> bigram, <span class="at">x =</span> n)) <span class="sc">+</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_col</span>() <span class="sc">+</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">facet_wrap</span>(<span class="fu">vars</span>(text_source), <span class="at">scales=</span><span class="st">"free"</span>) <span class="sc">+</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_y_reordered</span>() </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="milestone-report_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="1152"></p>
+</div>
+</div>
+</section>
+</section>
+<section id="trigram-exploration" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> Trigram exploration</h1>
+<section id="overall-frequency-2" class="level2" data-number="6.1">
+<h2 data-number="6.1" class="anchored" data-anchor-id="overall-frequency-2"><span class="header-section-number">6.1</span> Overall frequency</h2>
+<p>Gov Chris Christie was a more frequently observed trigram. Other names appeared higher in this list.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Count by trigram</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>count_trigram_df <span class="ot">&lt;-</span> </span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    trigram_df <span class="sc">%&gt;%</span> <span class="fu">count</span>(trigram, <span class="at">sort =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">head</span>(<span class="dv">25</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">trigram =</span> <span class="fu">reorder</span>(trigram, n))</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="do">## plot</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>count_trigram_df <span class="sc">%&gt;%</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y =</span> trigram, <span class="at">x =</span> n)) <span class="sc">+</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_col</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="milestone-report_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid" width="1152"></p>
+</div>
+</div>
+</section>
+<section id="frequency-by-source-2" class="level2" data-number="6.2">
+<h2 data-number="6.2" class="anchored" data-anchor-id="frequency-by-source-2"><span class="header-section-number">6.2</span> Frequency by source</h2>
+<p>As with bigrams, trigrams from the News source appeared frequently. Other than that, in this limited sample, occurrences were generally low so are difficult to infer meaning from.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Count by word - grouped</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>count_trigram_df_grp <span class="ot">&lt;-</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    trigram_df <span class="sc">%&gt;%</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">group_by</span>(text_source) <span class="sc">%&gt;%</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">count</span>(trigram, <span class="at">sort =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">slice_head</span>(<span class="at">n =</span> <span class="dv">25</span>)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="do">## plot</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>count_trigram_df_grp <span class="sc">%&gt;%</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">trigram =</span> <span class="fu">reorder_within</span>(trigram, n, text_source)) <span class="sc">%&gt;%</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y =</span> trigram, <span class="at">x =</span> n)) <span class="sc">+</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_col</span>() <span class="sc">+</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">facet_wrap</span>(<span class="fu">vars</span>(text_source), <span class="at">scales=</span><span class="st">"free"</span>) <span class="sc">+</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_y_reordered</span>() </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="milestone-report_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="1152"></p>
+</div>
+</div>
+</section>
+</section>
+<section id="unique-words-required-for-coverage" class="level1" data-number="7">
+<h1 data-number="7"><span class="header-section-number">7</span> Unique words required for coverage</h1>
+<p>One of the quested posed in the assignment was to consider how many unique words would be required to cover 50% of all words in the data. The results of this are below.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Count by word, with cumulative proportion and row number</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>count_word_df <span class="ot">&lt;-</span> </span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    word_df <span class="sc">%&gt;%</span> <span class="fu">count</span>(word, <span class="at">sort =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">word =</span> <span class="fu">reorder</span>(word, n)) <span class="sc">%&gt;%</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">cum_prop =</span> <span class="fu">cumsum</span>(n) <span class="sc">/</span> <span class="fu">sum</span>(n),</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">no_words =</span> <span class="fu">row_number</span>())</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="do">## work out min number of words</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>cov_words_50 <span class="ot">&lt;-</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    count_word_df <span class="sc">%&gt;%</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(cum_prop <span class="sc">&gt;=</span> <span class="fl">0.50</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">select</span>(no_words) <span class="sc">%&gt;%</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(<span class="at">min_value =</span> <span class="fu">min</span>(no_words)) <span class="sc">%&gt;%</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pull</span>()</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="do">## work out min number of words</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>cov_words_90 <span class="ot">&lt;-</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>    count_word_df <span class="sc">%&gt;%</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(cum_prop <span class="sc">&gt;=</span> <span class="fl">0.90</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">select</span>(no_words) <span class="sc">%&gt;%</span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(<span class="at">min_value =</span> <span class="fu">min</span>(no_words)) <span class="sc">%&gt;%</span></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pull</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="coverage" class="level2" data-number="7.1">
+<h2 data-number="7.1" class="anchored" data-anchor-id="coverage"><span class="header-section-number">7.1</span> 50% coverage</h2>
+<p>In this sample, 1693 unique words are required to cover 50% of word occurrences.</p>
+</section>
+<section id="coverage-1" class="level2" data-number="7.2">
+<h2 data-number="7.2" class="anchored" data-anchor-id="coverage-1"><span class="header-section-number">7.2</span> 90% coverage</h2>
+<p>In this sample, 17641 unique words are required to cover 90% of word occurrences. Interestingly, this shows that not many more words are required to achieve much greater coverage of the data.</p>
+</section>
+</section>
+<section id="identify-foreign-languages" class="level1" data-number="8">
+<h1 data-number="8"><span class="header-section-number">8</span> Identify foreign languages</h1>
+<p>Another question for consideration was how non-English language words could be identified.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Append to dataframe with language detection and spell check</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>word_df_spellcheck <span class="ot">&lt;-</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    word_df <span class="sc">%&gt;%</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">language =</span> cld2<span class="sc">::</span><span class="fu">detect_language</span>(word),</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">spell_check =</span> hunspell<span class="sc">::</span><span class="fu">hunspell_check</span>(word) <span class="do">## Default english US language</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="do">## words failed spell check - count</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>word_df_spellcheck_fail <span class="ot">&lt;-</span> <span class="fu">sum</span>(word_df_spellcheck<span class="sc">$</span>spell_check)</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="do">## total words</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>word_df_spellcheck_total <span class="ot">&lt;-</span> <span class="fu">nrow</span>(word_df_spellcheck)</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="do">## prop</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>word_df_spellcheck_prop <span class="ot">&lt;-</span> scales<span class="sc">::</span><span class="fu">percent</span>(word_df_spellcheck_fail <span class="sc">/</span> word_df_spellcheck_total, <span class="at">accuracy =</span> <span class="fl">0.01</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The <code>cld2</code> package was unable to detect language in most cases and in cases when it did, it seemed to classify some English words as non-English, e.g.&nbsp;“funky”.</p>
+<p>The <code>hunspell::hunspell_check()</code> function classified a lot of words (297668 out of 347934, 85.55%) as not in the dictionary, suggesting they are non-English. It is not feasible to remove this many words from the corpus and indeed it suggests that natural language is not always spelt correctly. Therefore, we will not remove words highlighted by these approaches.</p>
+</section>
+<section id="plans-for-prediction-algorithm-and-shiny-app" class="level1" data-number="9">
+<h1 data-number="9"><span class="header-section-number">9</span> Plans for prediction algorithm and Shiny app</h1>
+<p>I will first answer the questions posed for consideration in the assignment, then I will give a summary of my plans for the prediction algorithm and Shiny app.</p>
+<section id="questions-to-consider-2" class="level2" data-number="9.1">
+<h2 data-number="9.1" class="anchored" data-anchor-id="questions-to-consider-2"><span class="header-section-number">9.1</span> Questions to consider</h2>
+<section id="how-can-you-efficiently-store-an-n-gram-model-think-markov-chains" class="level3" data-number="9.1.1">
+<h3 data-number="9.1.1" class="anchored" data-anchor-id="how-can-you-efficiently-store-an-n-gram-model-think-markov-chains"><span class="header-section-number">9.1.1</span> How can you efficiently store an n-gram model (think Markov Chains)?</h3>
+<p>My current plan is to use ngram models which, to my understanding, are a form of Markov Chain. The assumption is that the previous word (bigram) or word before the previous word (trigram) can be used to predict the next word, and probabilities can be calculated for transitioning from one state to another.</p>
+<p>My only reservation with this approach so far is that my models do not include frequencies for tokens (unigrams, bigrams, trigrams) that were not in the sampled data. This does dramatically reduce the size of the models, but does not seem to allow smoothing. Perhaps unseen tokens could be generated and smoothed probabilities assigned, which could aid the final prediction. This will be explored in later steps of this project.</p>
+<p>I am currently planning to use 5-gram and 6-gram models, but these may be too sparse and not generalisable.</p>
+</section>
+<section id="how-can-you-use-the-knowledge-about-word-frequencies-to-make-your-model-smaller-and-more-efficient" class="level3" data-number="9.1.2">
+<h3 data-number="9.1.2" class="anchored" data-anchor-id="how-can-you-use-the-knowledge-about-word-frequencies-to-make-your-model-smaller-and-more-efficient"><span class="header-section-number">9.1.2</span> How can you use the knowledge about word frequencies to make your model smaller and more efficient?</h3>
+<p>For predicted words with low probabilities (based on low frequency in corpus), I plan to replace them with a dummy ‘unknown’ token, which will reduce the overall number of predicted words and therefore the model size.</p>
+</section>
+<section id="how-many-parameters-do-you-need-i.e.-how-big-is-n-in-your-n-gram-model" class="level3" data-number="9.1.3">
+<h3 data-number="9.1.3" class="anchored" data-anchor-id="how-many-parameters-do-you-need-i.e.-how-big-is-n-in-your-n-gram-model"><span class="header-section-number">9.1.3</span> How many parameters do you need (i.e.&nbsp;how big is n in your n-gram model)?</h3>
+<p>I am going to attempt a combination of six models (unigram to six-gram), so that up to the last five words of a user input can be used in the prediction. As above, this may be revised if it means the model is too large and/or this does not significantly improve the accuracy.</p>
+</section>
+<section id="can-you-think-of-simple-ways-to-smooth-the-probabilities-think-about-giving-all-n-grams-a-non-zero-probability-even-if-they-arent-observed-in-the-data" class="level3" data-number="9.1.4">
+<h3 data-number="9.1.4" class="anchored" data-anchor-id="can-you-think-of-simple-ways-to-smooth-the-probabilities-think-about-giving-all-n-grams-a-non-zero-probability-even-if-they-arent-observed-in-the-data"><span class="header-section-number">9.1.4</span> Can you think of simple ways to “smooth” the probabilities (think about giving all n-grams a non-zero probability even if they aren’t observed in the data)?</h3>
+<p>There are various methods available for smoothing from simple Laplace smoothing up to Kneser-Ney smoothing. As it stands, my models only include tokens observed in the sampled data. The plan is that a ‘backoff’ approach can be used until a token is ‘seen’, rather than generating unseen tokens and calculating smoothed probabilities. This approach may change depending on resuts.</p>
+</section>
+<section id="how-do-you-evaluate-whether-your-model-is-any-good" class="level3" data-number="9.1.5">
+<h3 data-number="9.1.5" class="anchored" data-anchor-id="how-do-you-evaluate-whether-your-model-is-any-good"><span class="header-section-number">9.1.5</span> How do you evaluate whether your model is any good?</h3>
+<p>I will split the sampled data into train, development and test subsets, mostly likely in a 60/30/10 ratio. The development subset will be used to tune hyperparameters in the models built using the training data and the test dataset will be used to test final accuracy. Accuracy evaluation metrics will include the proportion of time the actual word is within the top three or top five predicted words. Perplexity will also be used to comparatively assess different models, aiming for the lowest perplexity.</p>
+</section>
+<section id="how-can-you-use-backoff-models-to-estimate-the-probability-of-unobserved-n-grams" class="level3" data-number="9.1.6">
+<h3 data-number="9.1.6" class="anchored" data-anchor-id="how-can-you-use-backoff-models-to-estimate-the-probability-of-unobserved-n-grams"><span class="header-section-number">9.1.6</span> How can you use backoff models to estimate the probability of unobserved n-grams?</h3>
+<p>I plan to use a combination of backoff models and interpolation to combine predictions from multiple ngram models. For example, the last five words entered by the user will be checked in the six-gram model and if it doesn’t appear, the last 4 words will be checked in the five-gram model and so on until the unigram model, which will simply suggest the most frequently occuring words in the corpus. In occasions where multiple ngrams can be found in the different ngram models, probabilities will be calculated across all of them to provide final predictions. These probabilities will be weighted via interpolation using values informed by the hyperparamter tuning.</p>
+</section>
+</section>
+<section id="prediction-algorithm" class="level2" data-number="9.2">
+<h2 data-number="9.2" class="anchored" data-anchor-id="prediction-algorithm"><span class="header-section-number">9.2</span> Prediction algorithm</h2>
+<p>maybe use interpolation instead. go back to unigram model. or might have prediction on <unk> -&gt; next word</unk></p>
+<p>Data! more sample don’t remove stop words other considerations like start and end of text.</p>
+<p>train/test split</p>
+<p>considerations on size vs speed and accuracy. more text the better… but limitations here.</p>
+<p>General details of model. Provide answers to questions posed in assignment.</p>
+</section>
+<section id="shiny-app" class="level2" data-number="9.3">
+<h2 data-number="9.3" class="anchored" data-anchor-id="shiny-app"><span class="header-section-number">9.3</span> Shiny App</h2>
+<p>Link to repo: full code etc</p>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

@@ -499,25 +499,32 @@ My current plan is to use ngram models which, to my understanding, are a form of
 
 My only reservation with this approach so far is that my models do not include frequencies for tokens (unigrams, bigrams, trigrams) that were not in the sampled data. This does dramatically reduce the size of the models, but does not seem to allow smoothing. Perhaps unseen tokens could be generated and smoothed probabilities assigned, which could aid the final prediction. This will be explored in later steps of this project.
 
-I am currently planning to use 5-gram and 6-gram models, but these may be too spare and not generalisable. 
+I am currently planning to use 5-gram and 6-gram models, but these may be too sparse and not generalisable. 
 
 ### How can you use the knowledge about word frequencies to make your model smaller and more efficient?
-For predicted words with low probabilities (based on low frequency in corpus), I plan to replace them with a dummy 'unknown', which will reduce the overall number of predicted words and reduce the model size.
+For predicted words with low probabilities (based on low frequency in corpus), I plan to replace them with a dummy 'unknown' token, which will reduce the overall number of predicted words and therefore the model size.
 
 ### How many parameters do you need (i.e. how big is n in your n-gram model)?
-I am going to attempt a combination of six models (unigram to six-gram), so that up to the last 5 words of a user input can be used in the prediction. As above, this may be revised if it means the model is too large and/or this does not significantly improve the accuracy.
+I am going to attempt a combination of six models (unigram to six-gram), so that up to the last five words of a user input can be used in the prediction. As above, this may be revised if it means the model is too large and/or this does not significantly improve the accuracy.
 
 ### Can you think of simple ways to "smooth" the probabilities (think about giving all n-grams a non-zero probability even if they aren't observed in the data)?
 There are various methods available for smoothing from simple Laplace smoothing up to Kneser-Ney smoothing. As it stands, my models only include tokens observed in the sampled data. The plan is that a 'backoff' approach can be used until a token is 'seen', rather than generating unseen tokens and calculating smoothed probabilities. This approach may change depending on resuts.
 
 ### How do you evaluate whether your model is any good?
-I will split the sampled data into train, development and test subsets, mostly likely in a 60/30/10 ratio. The development subset will be used to tune hyperparameters in the models built using the training data and the test dataset will be used to test final accuracy. Accuracy evaluation metrics will include the proportion of time the actual word is within the top three or top 5 predicted words. Perplexity will also be used to comparatively assess different models, aiming for the lowest perplexity.
+I will split the sampled data into train, development and test subsets, mostly likely in a 60/30/10 ratio. The development subset will be used to tune hyperparameters in the models built using the training data and the test dataset will be used to test final accuracy. Accuracy evaluation metrics will include the proportion of time the actual word is within the top three or top five predicted words. Perplexity will also be used to comparatively assess different models, aiming for the lowest perplexity.
 
 ### How can you use backoff models to estimate the probability of unobserved n-grams?
+I plan to use a combination of backoff models and interpolation to combine predictions from multiple ngram models. For example, the last five words entered by the user will be checked in the six-gram model and if it doesn't appear, the last 4 words will be checked in the five-gram model and so on until the unigram model, which will simply suggest the most frequently occuring words in the corpus. 
+In occasions where multiple ngrams can be found in the different ngram models, probabilities will be calculated across all of them to provide final predictions. These probabilities will be weighted via interpolation using values informed by the hyperparamter tuning.
 
-use this to train interpolation parameters (weighting)
 
 
+
+
+
+
+
+## Prediction algorithm
 
 
 
@@ -525,10 +532,6 @@ maybe use interpolation instead.
 go back to unigram model.
 or might have prediction on <UNK> -> next word
 
-
-
-
-## Prediction algorithm
 
 Data!
 more sample
