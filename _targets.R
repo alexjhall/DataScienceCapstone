@@ -17,8 +17,7 @@ lapply(
 
 
 
-## This is where you specify your targets and dependencies. See
-## https://books.ropensci.org/targets/ for more details.
+## Targets list
 list(
   
   
@@ -250,20 +249,46 @@ list(
       preprocess_tokenise_sixgram_premodel,
       preprocess_sixgram_premodel_function(combine_source_vectors)
       
+  ),
+  
+  
+  ## *************************************************
+  ## Create ngrams
+  ## *************************************************
+  
+  ## Unigram - Need to work on this
+  
+  
+  ## Bigram
+  tar_target(
+      bigram_model,
+      create_ngram_function(preprocess_tokenise_bigram_premodel)
+  ),
+  
+  ## Trigram
+  tar_target(
+      trigram_model,
+      create_ngram_function(preprocess_tokenise_trigram_premodel)
+  ),
+  
+  ## Quadgram
+  tar_target(
+      quadgram_model,
+      create_ngram_function(preprocess_tokenise_quadgram_premodel)
+  ),
+  
+  ## Fivegram
+  tar_target(
+      fivegram_model,
+      create_ngram_function(preprocess_tokenise_fivegram_premodel)
+  ),
+  
+  ## Sixgram
+  tar_target(
+      sixgram_model,
+      create_ngram_function(preprocess_tokenise_sixgram_premodel)
   )
   
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  ## *************************************************
-  ## Analysis steps
-  ## *************************************************
   
   
   
@@ -271,12 +296,12 @@ list(
   ## Report
   ## *************************************************
   
-  # # ## Quarto main report
-  # tarchetypes::tar_quarto(
-  #   main_report,
-  #   here("Report/campaign-eval-design-report.qmd")
-  # ),
-  # 
+  ## Quarto milestone report
+  ,tarchetypes::tar_quarto(
+    milestone_report,
+    here("reports/milestone-report.qmd")
+  )
+
 
   ## *************************************************
   ## Slides

@@ -39,6 +39,7 @@ library(stopwords)
 library(sentimentr) ## For removing profanity
 library(stringr)
 library(cld2) ## For detecting language
+library(hunspell) ## Also for detecting language, more of spell check?
 
 # markov chain
 library(markovchain)

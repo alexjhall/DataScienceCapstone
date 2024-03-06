@@ -4,13 +4,68 @@
 
 
 
+## Looking at output
+data <- tar_read(sixgram_model)
+
+data <- tar_read(trigram_model)
 
 
-
-
+test <- data %>% filter(next_word_prob<0)
 
 
 ## Working to build function.
+
+data <- tar_read(preprocess_tokenise_bigram_premodel)
+
+
+## define sample size
+sample_n <- 10000
+
+## subset data
+# n sample as above
+# actual text bigrams only
+data_small <- data[sample(nrow(data), sample_n), 3]
+
+# rename column to be agnostic
+names(data_small) <- "text"
+
+## split into history and next_word
+
+
+## create dataframe
+bigram_probs <-
+    data_small  %>%
+    # data  %>%
+    separate_wider_regex(text, c(history_text = ".*?", " ", next_word = ".*")) %>%
+    group_by(history_text) %>%
+    mutate(history_text_count = n()) %>%
+    ungroup() %>%
+    group_by(history_text, next_word) %>%
+    mutate(
+        next_word_count = n(),
+        next_word_prob = next_word_count / history_text_count
+    ) %>%
+    ungroup() %>%
+    select(
+        history_text, 
+        next_word,
+        next_word_prob
+    ) %>%
+    distinct()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

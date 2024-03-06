@@ -1,0 +1,565 @@
+---
+title: "Data Science Capstone - Milestone Report - EDA"
+subtitle: "John Hopkins University Data Science Specialisation"
+author: "Alex Hall"
+format: 
+    html:
+        fig-width: 12
+        fig-height: 6
+# Table of contents options
+toc: true
+toc-location: left
+toc-depth: 4
+number-sections: true ## Gives sections numbers. Helpful for navigation with cross-references.
+# Footnote location set to block.
+reference-location: margin
+# citation location set to document.
+citation-location: margin
+---
+
+```{r, echo = FALSE, warning=FALSE, message=FALSE}
+## Load packages
+source(paste0(here::here(), "/R/packages.R"))
+
+
+## Set options?
+
+
+## Read data
+
+# Single tokens (words)
+word_df <- tar_read(preprocess_tokenise, store = here("_targets"))
+
+# Bigrams
+bigram_df <- tar_read(preprocess_tokenise_bigram, store = here("_targets"))
+
+# Trigrams
+trigram_df <- tar_read(preprocess_tokenise_trigram, store = here("_targets"))
+
+
+```
+
+
+# Introduction
+## Background
+This milestone report is for the week 2 assignment of the capstone project, as part of the John Hopkins University Data Science Specialisation.
+
+The aim of the capstone project is to build a predictive text model that can predict the next word in a sentence. This model will be used for an R Shiny dashboard product and accompanying presentation.
+
+This report summarises tasks 0 (understanding the problem), 1 (getting and cleaning the data), 2 (exploratory data analysis) and 3 (modelling), with particular focus on the latter two. Specific questions are outlined below.
+
+
+## Task 2 aims
+
+### Tasks to accomplish
+
+- Exploratory analysis - perform a thorough exploratory analysis of the data, understanding the distribution of words and relationship between the words in the corpora. 
+- Understand frequencies of words and word pairs - build figures and tables to understand variation in the frequencies of words and word pairs in the data.
+
+### Questions to consider
+
+- Some words are more frequent than others - what are the distributions of word frequencies? 
+- What are the frequencies of 2-grams and 3-grams in the dataset? 
+- How many unique words do you need in a frequency sorted dictionary to cover 50% of all word instances in the language? 90%? 
+- How do you evaluate how many of the words come from foreign languages? 
+- Can you think of a way to increase the coverage -- identifying words that may not be in the corpora or using a smaller number of words in the dictionary to cover the same number of phrases?
+
+## Task 3 aims
+
+### Tasks to accomplish
+- Build basic n-gram model: Using the exploratory analysis you performed, build a basic 
+n-gram model for predicting the next word based on the previous 1, 2, or 3 words.
+- Build a model to handle unseen n-grams: In some cases people will want to type a combination of words that does not appear in the corpora. Build a model to handle cases where a particular n-gram isn't observed.
+
+
+### Questions to consider
+- How can you efficiently store an n-gram model (think Markov Chains)?
+- How can you use the knowledge about word frequencies to make your model smaller and more efficient?
+- How many parameters do you need (i.e. how big is n in your n-gram model)?
+- Can you think of simple ways to "smooth" the probabilities (think about giving all n-grams a non-zero probability even if they aren't observed in the data) ?
+- How do you evaluate whether your model is any good?
+- How can you use backoff models to estimate the probability of unobserved n-grams?
+
+
+
+
+# Data
+## Data sources
+The raw data for this project was text in four languages: English, German, Finnish and Russian. For each language, there were three text files for text sourced from Twitter, News and Blogs. As an English speaker, I chose to only use the English language text files. 
+
+## Data source summary
+The following table shows a summary of the three source files. 
+
+```{r, echo = FALSE}
+tar_read(meta_summary, store = here("_targets")) %>%
+    kable()
+
+```
+
+
+## Sampling
+Given each source was a large dataset, initial exploration and modelling was conducted on a sample. If the amount of data turned out to be a problem, then more data could be sampled in the future.
+
+In order to not bias the dataset, an equal number of lines were randomly sampled from each source, even though each had a very different number of lines. 10,000 was chosen as an arbitrary round number that made up nearly 10% of the Blogs dataset.
+
+Data was loaded using `readr::read_lines()` and then sampled used `base::sample()`. This report is one step in a 'Targets' pipeline so does not include the full code, but it can be found [here](https://github.com/alexjhall/DataScienceCapstone). 
+
+
+# Transformations
+## Remove profanity
+Course instructions in the first week suggested removing profanity from the data so that offensive words would not be modelled and therefore suggested as part of the prediction. 
+
+This was done on the raw text using the `sentimentr::profanity()` function to detect instances of profanity in a document and remove that document from the dataset. In practice, this removed <5% of documents so was deemed acceptable. The alternative would have been to remove single words which would have produced unnatural n-grams.
+
+This was done before further pre-processing for two reasons. Firstly so that further steps would run more quickly with a slightly reduced dataset. Also, the profanity detection function depended on sentences, which could not be determined if punctuation was removed, which is what happens in later pre-processing steps.
+
+## Further preprocessing
+After documents containing profanity were removed, further text reprocessing was conducted to manipulate the data into a form suitable for text predictive models. This was done using the `tidytext::unnest_tokens()` function and included removing digits, punctuation and stop words.
+
+# Single word (unigram) exploration
+
+## Overall frequency
+Across all sources, it appears that the most frequently used words were 'time', 'day' and 'people'.
+
+```{r}
+## Count by word
+count_word_df_head <- 
+    word_df %>% count(word, sort = TRUE) %>%
+    head(25) %>%
+    mutate(word = reorder(word, n))
+
+## plot
+count_word_df_head %>%
+    ggplot(aes(y = word, x = n)) +
+    geom_col()
+
+
+```
+
+
+
+## Frequency by source
+By source, there are some more differences. 'Time' and 'people' are still top for Blogs and News sources, but 'love', 'day' and 'rt' (retweet) are hier for the Twitter source.
+
+```{r}
+## Count by word - grouped
+count_word_df_grp_head <-
+    word_df %>%
+    dplyr::group_by(text_source) %>%
+    count(word, sort = TRUE) %>%
+    slice_head(n = 25)
+
+## plot
+count_word_df_grp_head %>%
+    mutate(word = reorder_within(word, n, text_source)) %>%
+    ggplot(aes(y = word, x = n)) +
+    geom_col() +
+    facet_wrap(vars(text_source), scales="free") + 
+    scale_y_reordered() 
+    
+
+
+```
+
+## Overall distribution
+Looking at the word frequencies in a boxplot shows a very skewed distribution with a large proportion of words only appearing once, or very few times.
+
+
+```{r}
+## Count by word
+count_word_df <- 
+    word_df %>% count(word, sort = TRUE) %>%
+    mutate(word = reorder(word, n))
+
+## plot
+count_word_df %>%
+    ggplot(aes(x = n)) +
+    # geom_histogram(binwidth = 50)
+    geom_boxplot()
+
+
+```
+
+
+```{r, echo = FALSE}
+
+## counts of single vals
+single_word_count <-
+    count_word_df %>%
+    filter(n == 1) %>%
+    count() %>%
+    pull()
+    
+## prop of count of single vals out of total.
+single_word_prop <-
+    single_word_count / nrow(count_word_df)
+
+## Count by word - grouped
+count_word_df_grp <-
+    word_df %>%
+    dplyr::group_by(text_source) %>%
+    count(word, sort = TRUE) %>%
+    mutate(word = reorder(word, n))
+
+## *****************************
+## By source
+
+### Twitter
+count_word_df_twitter <-
+    count_word_df_grp %>%
+    filter(text_source == "Twitter")
+
+## counts of single vals
+single_word_count_twitter <-
+    count_word_df_twitter %>%
+    filter(n == 1) %>%
+    count() %>%
+    pull()
+    
+## prop of count of single vals out of total.
+single_word_prop_twitter <-
+    single_word_count_twitter / nrow(count_word_df_twitter)
+
+           
+### News
+count_word_df_news <-
+    count_word_df_grp %>%
+    filter(text_source == "News")
+
+## counts of single vals
+single_word_count_news <-
+    count_word_df_news %>%
+    filter(n == 1) %>%
+    count() %>%
+    pull()
+
+## prop of count of single vals out of total.
+single_word_prop_news <-
+    single_word_count_news / nrow(count_word_df_news)
+
+
+
+### Blogs
+count_word_df_blogs <-
+    count_word_df_grp %>%
+    filter(text_source == "Blogs")
+
+
+## counts of single vals
+single_word_count_blogs <-
+    nrow(count_word_df_blogs[count_word_df_blogs$n ==1,])
+
+## prop of count of single vals out of total.
+single_word_prop_blogs <-
+    single_word_count_blogs / nrow(count_word_df_blogs)
+
+
+## Format all as percentages (text)
+## For some reason, can't do this in chain
+single_word_prop <- scales::percent(single_word_prop, accuracy = 0.01)
+single_word_prop_blogs <- scales::percent(single_word_prop_blogs, accuracy = 0.01)
+single_word_prop_news <- scales::percent(single_word_prop_news, accuracy = 0.01)
+single_word_prop_twitter <- scales::percent(single_word_prop_twitter, accuracy = 0.01)
+
+
+
+## Combine into table
+single_word_table <-
+    tibble(
+       Source = c("Blogs", "News", "Twitter"),
+       `Words appearing once (n)` = c(
+           single_word_count_blogs,
+           single_word_count_news,
+           single_word_count_twitter
+       ),
+       `% of total` = c(
+           single_word_prop_blogs,
+           single_word_prop_news,
+           single_word_prop_twitter
+       )
+    )
+
+
+
+```
+
+
+## Distribution by source
+The same overall pattern is observed for each source, but for Twitter, it seems it has a slightly higher proportion of words appearing only once, `r single_word_prop_twitter` for Twitter as opposed to `r single_word_prop_blogs` for Blogs. Overall there are `r single_word_count` words that only appear once in the corpus (`r single_word_prop`).
+
+
+```{r, warning = FALSE}
+
+
+## Table calculated above
+## plot
+count_word_df_grp %>%
+    ggplot(aes(x = n, group = text_source, colour = text_source)) +
+    # geom_histogram(binwidth = 50)
+    geom_boxplot() +
+    scale_x_continuous(limits = c(0, 100))
+
+
+
+```
+
+
+```{r, echo = FALSE}
+single_word_table %>%
+    kable()
+
+```
+
+
+
+
+# Bigram exploration
+
+## Overall frequency
+Interestingly, place names are the most frequent when looking at bigrams. Given that Twitter, News and Blogs would be heavily influenced by current affairs at the time, it is possible that coincidentally something had happened in St Louis, Los Angeles and San Fransisco at the time this data was collected.
+
+
+
+```{r}
+## Count by bigram
+count_bigram_df <- 
+    bigram_df %>% count(bigram, sort = TRUE) %>%
+    head(25) %>%
+    mutate(bigram = reorder(bigram, n))
+
+## plot
+count_bigram_df %>%
+    ggplot(aes(y = bigram, x = n)) +
+    geom_col()
+
+
+```
+
+
+## Frequency by source
+By source the above observations hold true for the News source, but not Blogs or Twitter. Mentions of special occasions (Mother's Day and Birthday) are frequent in the Twitter source, particularly 'Happy Birthday' appearing twice as many times as the next bigram. For Blogs, the bigram frequencies are more evenly dispersed numerically but also in topics.
+
+
+```{r}
+## Count by word - grouped
+count_bigram_df_grp <-
+    bigram_df %>%
+    dplyr::group_by(text_source) %>%
+    count(bigram, sort = TRUE) %>%
+    slice_head(n = 25)
+
+
+## plot
+count_bigram_df_grp %>%
+    mutate(bigram = reorder_within(bigram, n, text_source)) %>%
+    ggplot(aes(y = bigram, x = n)) +
+    geom_col() +
+    facet_wrap(vars(text_source), scales="free") +
+    scale_y_reordered() 
+    
+
+
+```
+
+
+
+
+# Trigram exploration
+
+## Overall frequency
+Gov Chris Christie was a more frequently observed trigram. Other names appeared higher in this list.
+
+
+```{r}
+## Count by trigram
+count_trigram_df <- 
+    trigram_df %>% count(trigram, sort = TRUE) %>%
+    head(25) %>%
+    mutate(trigram = reorder(trigram, n))
+
+## plot
+count_trigram_df %>%
+    ggplot(aes(y = trigram, x = n)) +
+    geom_col()
+
+
+```
+
+
+## Frequency by source
+
+As with bigrams, trigrams from the News source appeared frequently. Other than that, in this limited sample, occurrences were generally low so are difficult to infer meaning from.
+
+```{r}
+## Count by word - grouped
+count_trigram_df_grp <-
+    trigram_df %>%
+    dplyr::group_by(text_source) %>%
+    count(trigram, sort = TRUE) %>%
+    slice_head(n = 25)
+
+
+## plot
+count_trigram_df_grp %>%
+    mutate(trigram = reorder_within(trigram, n, text_source)) %>%
+    ggplot(aes(y = trigram, x = n)) +
+    geom_col() +
+    facet_wrap(vars(text_source), scales="free") +
+    scale_y_reordered() 
+    
+
+
+```
+
+
+
+# Unique words required for coverage
+
+One of the quested posed in the assignment was to consider how many unique words would be required to cover 50% of all words in the data. The results of this are below.
+
+
+```{r}
+## Count by word, with cumulative proportion and row number
+count_word_df <- 
+    word_df %>% count(word, sort = TRUE) %>%
+    mutate(word = reorder(word, n)) %>%
+    mutate(
+        cum_prop = cumsum(n) / sum(n),
+        no_words = row_number())
+
+## work out min number of words
+cov_words_50 <-
+    count_word_df %>%
+    filter(cum_prop >= 0.50) %>%
+    select(no_words) %>%
+    summarise(min_value = min(no_words)) %>%
+    pull()
+
+
+## work out min number of words
+cov_words_90 <-
+    count_word_df %>%
+    filter(cum_prop >= 0.90) %>%
+    select(no_words) %>%
+    summarise(min_value = min(no_words)) %>%
+    pull()
+
+
+```
+
+## 50% coverage
+In this sample, `r cov_words_50` unique words are required to cover 50% of word occurrences.
+
+## 90% coverage
+In this sample, `r cov_words_90` unique words are required to cover 90% of word occurrences.
+Interestingly, this shows that not many more words are required to achieve much greater coverage of the data.
+
+
+
+# Identify foreign languages
+Another question for consideration was how non-English language words could be identified. 
+
+```{r}
+
+## Append to dataframe with language detection and spell check
+word_df_spellcheck <-
+    word_df %>%
+    mutate(
+        language = cld2::detect_language(word),
+        spell_check = hunspell::hunspell_check(word) ## Default english US language
+    )
+
+## words failed spell check - count
+word_df_spellcheck_fail <- sum(word_df_spellcheck$spell_check)
+
+## total words
+word_df_spellcheck_total <- nrow(word_df_spellcheck)
+    
+## prop
+word_df_spellcheck_prop <- scales::percent(word_df_spellcheck_fail / word_df_spellcheck_total, accuracy = 0.01)
+
+
+```
+
+
+The `cld2` package was unable to detect language in most cases and in cases when it did, it seemed to classify some English words as non-English, e.g. "funky".
+
+The `hunspell::hunspell_check()` function classified a lot of words (`r word_df_spellcheck_fail` out of `r word_df_spellcheck_total`, `r word_df_spellcheck_prop`) as not in the dictionary, suggesting they are non-English. It is not feasible to remove this many words from the corpus and indeed it suggests that natural language is not always spelt correctly. Therefore, we will not remove words highlighted by these approaches.
+
+
+
+# Plans for prediction algorithm and Shiny app
+
+I will first answer the questions posed for consideration in the assignment, then I will give a summary of my plans for the prediction algorithm and Shiny app.
+
+## Questions to consider
+
+### How can you efficiently store an n-gram model (think Markov Chains)?
+My current plan is to use ngram models which, to my understanding, are a form of Markov Chain. The assumption is that the previous word (bigram) or word before the previous word (trigram) can be used to predict the next word, and probabilities can be calculated for transitioning from one state to another. 
+
+My only reservation with this approach so far is that my models do not include frequencies for tokens (unigrams, bigrams, trigrams) that were not in the sampled data. This does dramatically reduce the size of the models, but does not seem to allow smoothing. Perhaps unseen tokens could be generated and smoothed probabilities assigned, which could aid the final prediction. This will be explored in later steps of this project.
+
+I am currently planning to use 5-gram and 6-gram models, but these may be too spare and not generalisable. 
+
+### How can you use the knowledge about word frequencies to make your model smaller and more efficient?
+For predicted words with low probabilities (based on low frequency in corpus), I plan to replace them with a dummy 'unknown', which will reduce the overall number of predicted words and reduce the model size.
+
+### How many parameters do you need (i.e. how big is n in your n-gram model)?
+I am going to attempt a combination of six models (unigram to six-gram), so that up to the last 5 words of a user input can be used in the prediction. As above, this may be revised if it means the model is too large and/or this does not significantly improve the accuracy.
+
+### Can you think of simple ways to "smooth" the probabilities (think about giving all n-grams a non-zero probability even if they aren't observed in the data)?
+There are various methods available for smoothing from simple Laplace smoothing up to Kneser-Ney smoothing. As it stands, my models only include tokens observed in the sampled data. The plan is that a 'backoff' approach can be used until a token is 'seen', rather than generating unseen tokens and calculating smoothed probabilities. This approach may change depending on resuts.
+
+### How do you evaluate whether your model is any good?
+I will split the sampled data into train, development and test subsets, mostly likely in a 60/30/10 ratio. The development subset will be used to tune hyperparameters in the models built using the training data and the test dataset will be used to test final accuracy. Accuracy evaluation metrics will include the proportion of time the actual word is within the top three or top 5 predicted words. Perplexity will also be used to comparatively assess different models, aiming for the lowest perplexity.
+
+### How can you use backoff models to estimate the probability of unobserved n-grams?
+
+use this to train interpolation parameters (weighting)
+
+
+
+
+
+maybe use interpolation instead.
+go back to unigram model.
+or might have prediction on <UNK> -> next word
+
+
+
+
+## Prediction algorithm
+
+Data!
+more sample
+don't remove stop words
+other considerations like start and end of text.
+
+
+train/test split
+
+
+considerations on size vs speed and accuracy. more text the better... but limitations here.
+
+
+General details of model. Provide answers to questions posed in assignment.
+
+
+
+## Shiny App
+
+
+
+
+
+
+
+
+
+
+
+
+Link to repo: 
+full code etc
+
+
