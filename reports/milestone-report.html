@@ -130,7 +130,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#identify-foreign-languages" id="toc-identify-foreign-languages" class="nav-link" data-scroll-target="#identify-foreign-languages"><span class="header-section-number">8</span> Identify foreign languages</a></li>
   <li><a href="#plans-for-prediction-algorithm-and-shiny-app" id="toc-plans-for-prediction-algorithm-and-shiny-app" class="nav-link" data-scroll-target="#plans-for-prediction-algorithm-and-shiny-app"><span class="header-section-number">9</span> Plans for prediction algorithm and Shiny app</a>
   <ul>
-  <li><a href="#questions-to-consider-2" id="toc-questions-to-consider-2" class="nav-link" data-scroll-target="#questions-to-consider-2"><span class="header-section-number">9.1</span> Questions to consider</a>
+  <li><a href="#task-3-questions-to-consider" id="toc-task-3-questions-to-consider" class="nav-link" data-scroll-target="#task-3-questions-to-consider"><span class="header-section-number">9.1</span> Task 3 Questions to consider</a>
   <ul class="collapse">
   <li><a href="#how-can-you-efficiently-store-an-n-gram-model-think-markov-chains" id="toc-how-can-you-efficiently-store-an-n-gram-model-think-markov-chains" class="nav-link" data-scroll-target="#how-can-you-efficiently-store-an-n-gram-model-think-markov-chains"><span class="header-section-number">9.1.1</span> How can you efficiently store an n-gram model (think Markov Chains)?</a></li>
   <li><a href="#how-can-you-use-the-knowledge-about-word-frequencies-to-make-your-model-smaller-and-more-efficient" id="toc-how-can-you-use-the-knowledge-about-word-frequencies-to-make-your-model-smaller-and-more-efficient" class="nav-link" data-scroll-target="#how-can-you-use-the-knowledge-about-word-frequencies-to-make-your-model-smaller-and-more-efficient"><span class="header-section-number">9.1.2</span> How can you use the knowledge about word frequencies to make your model smaller and more efficient?</a></li>
@@ -139,9 +139,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#how-do-you-evaluate-whether-your-model-is-any-good" id="toc-how-do-you-evaluate-whether-your-model-is-any-good" class="nav-link" data-scroll-target="#how-do-you-evaluate-whether-your-model-is-any-good"><span class="header-section-number">9.1.5</span> How do you evaluate whether your model is any good?</a></li>
   <li><a href="#how-can-you-use-backoff-models-to-estimate-the-probability-of-unobserved-n-grams" id="toc-how-can-you-use-backoff-models-to-estimate-the-probability-of-unobserved-n-grams" class="nav-link" data-scroll-target="#how-can-you-use-backoff-models-to-estimate-the-probability-of-unobserved-n-grams"><span class="header-section-number">9.1.6</span> How can you use backoff models to estimate the probability of unobserved n-grams?</a></li>
   </ul></li>
-  <li><a href="#prediction-algorithm" id="toc-prediction-algorithm" class="nav-link" data-scroll-target="#prediction-algorithm"><span class="header-section-number">9.2</span> Prediction algorithm</a></li>
+  <li><a href="#prediction-algorithm" id="toc-prediction-algorithm" class="nav-link" data-scroll-target="#prediction-algorithm"><span class="header-section-number">9.2</span> Prediction algorithm</a>
+  <ul class="collapse">
+  <li><a href="#stop-words" id="toc-stop-words" class="nav-link" data-scroll-target="#stop-words"><span class="header-section-number">9.2.1</span> Stop words</a></li>
+  <li><a href="#sample-size" id="toc-sample-size" class="nav-link" data-scroll-target="#sample-size"><span class="header-section-number">9.2.2</span> Sample size</a></li>
+  <li><a href="#traintest-split-for-model-evaluation" id="toc-traintest-split-for-model-evaluation" class="nav-link" data-scroll-target="#traintest-split-for-model-evaluation"><span class="header-section-number">9.2.3</span> Train/test split for model evaluation</a></li>
+  <li><a href="#other-changes-to-consider" id="toc-other-changes-to-consider" class="nav-link" data-scroll-target="#other-changes-to-consider"><span class="header-section-number">9.2.4</span> Other changes to consider</a></li>
+  </ul></li>
   <li><a href="#shiny-app" id="toc-shiny-app" class="nav-link" data-scroll-target="#shiny-app"><span class="header-section-number">9.3</span> Shiny App</a></li>
   </ul></li>
+  <li><a href="#repository-link" id="toc-repository-link" class="nav-link" data-scroll-target="#repository-link"><span class="header-section-number">10</span> Repository link</a></li>
   </ul>
 </nav>
 </div>
@@ -175,6 +182,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="introduction" class="level1" data-number="1">
 <h1 data-number="1"><span class="header-section-number">1</span> Introduction</h1>
+<p>I’ll acknowledge that this report could be more brief and concise, but hopefully is written in a way that a non-technical person could understand. I also think it would lose important context on the exploration to date if it was shorter. Hopefully reviewers will not grade this element too harshly.</p>
 <section id="background" class="level2" data-number="1.1">
 <h2 data-number="1.1" class="anchored" data-anchor-id="background"><span class="header-section-number">1.1</span> Background</h2>
 <p>This milestone report is for the week 2 assignment of the capstone project, as part of the John Hopkins University Data Science Specialisation.</p>
@@ -320,7 +328,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="frequency-by-source" class="level2" data-number="4.2">
 <h2 data-number="4.2" class="anchored" data-anchor-id="frequency-by-source"><span class="header-section-number">4.2</span> Frequency by source</h2>
-<p>By source, there are some more differences. ‘Time’ and ‘people’ are still top for Blogs and News sources, but ‘love’, ‘day’ and ‘rt’ (retweet) are hier for the Twitter source.</p>
+<p>By source, there are some more differences. ‘Time’ and ‘people’ are still top for Blogs and News sources, but ‘love’, ‘day’ and ‘rt’ (retweet) are higher for the Twitter source.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Count by word - grouped</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>count_word_df_grp_head <span class="ot">&lt;-</span></span>
@@ -459,7 +467,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h1 data-number="6"><span class="header-section-number">6</span> Trigram exploration</h1>
 <section id="overall-frequency-2" class="level2" data-number="6.1">
 <h2 data-number="6.1" class="anchored" data-anchor-id="overall-frequency-2"><span class="header-section-number">6.1</span> Overall frequency</h2>
-<p>Gov Chris Christie was a more frequently observed trigram. Other names appeared higher in this list.</p>
+<p>Gov Chris Christie was the most frequently observed trigram. Other names (people, places, titles) appeared towards the top of this list.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Count by trigram</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>count_trigram_df <span class="ot">&lt;-</span> </span>
@@ -566,12 +574,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="plans-for-prediction-algorithm-and-shiny-app" class="level1" data-number="9">
 <h1 data-number="9"><span class="header-section-number">9</span> Plans for prediction algorithm and Shiny app</h1>
 <p>I will first answer the questions posed for consideration in the assignment, then I will give a summary of my plans for the prediction algorithm and Shiny app.</p>
-<section id="questions-to-consider-2" class="level2" data-number="9.1">
-<h2 data-number="9.1" class="anchored" data-anchor-id="questions-to-consider-2"><span class="header-section-number">9.1</span> Questions to consider</h2>
+<section id="task-3-questions-to-consider" class="level2" data-number="9.1">
+<h2 data-number="9.1" class="anchored" data-anchor-id="task-3-questions-to-consider"><span class="header-section-number">9.1</span> Task 3 Questions to consider</h2>
 <section id="how-can-you-efficiently-store-an-n-gram-model-think-markov-chains" class="level3" data-number="9.1.1">
 <h3 data-number="9.1.1" class="anchored" data-anchor-id="how-can-you-efficiently-store-an-n-gram-model-think-markov-chains"><span class="header-section-number">9.1.1</span> How can you efficiently store an n-gram model (think Markov Chains)?</h3>
 <p>My current plan is to use ngram models which, to my understanding, are a form of Markov Chain. The assumption is that the previous word (bigram) or word before the previous word (trigram) can be used to predict the next word, and probabilities can be calculated for transitioning from one state to another.</p>
-<p>My only reservation with this approach so far is that my models do not include frequencies for tokens (unigrams, bigrams, trigrams) that were not in the sampled data. This does dramatically reduce the size of the models, but does not seem to allow smoothing. Perhaps unseen tokens could be generated and smoothed probabilities assigned, which could aid the final prediction. This will be explored in later steps of this project.</p>
+<p>My only reservation with this approach so far is that my models do not include frequencies for tokens (unigrams, bigrams, trigrams) that were not in the sampled data. This does dramatically reduce the size of the models, but does not seem to allow smoothing, at least not for the purposes of making unseen words possible, probability-wise. Perhaps unseen tokens could be generated and smoothed probabilities assigned, which could aid the final prediction. This will be explored in later steps of this project.</p>
 <p>I am currently planning to use 5-gram and 6-gram models, but these may be too sparse and not generalisable.</p>
 </section>
 <section id="how-can-you-use-the-knowledge-about-word-frequencies-to-make-your-model-smaller-and-more-efficient" class="level3" data-number="9.1.2">
@@ -584,29 +592,49 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="can-you-think-of-simple-ways-to-smooth-the-probabilities-think-about-giving-all-n-grams-a-non-zero-probability-even-if-they-arent-observed-in-the-data" class="level3" data-number="9.1.4">
 <h3 data-number="9.1.4" class="anchored" data-anchor-id="can-you-think-of-simple-ways-to-smooth-the-probabilities-think-about-giving-all-n-grams-a-non-zero-probability-even-if-they-arent-observed-in-the-data"><span class="header-section-number">9.1.4</span> Can you think of simple ways to “smooth” the probabilities (think about giving all n-grams a non-zero probability even if they aren’t observed in the data)?</h3>
-<p>There are various methods available for smoothing from simple Laplace smoothing up to Kneser-Ney smoothing. As it stands, my models only include tokens observed in the sampled data. The plan is that a ‘backoff’ approach can be used until a token is ‘seen’, rather than generating unseen tokens and calculating smoothed probabilities. This approach may change depending on resuts.</p>
+<p>There are various methods available for smoothing from simple Laplace smoothing up to Kneser-Ney smoothing. As it stands, my models only include tokens observed in the sampled data. The plan is that a ‘backoff’ approach can be used until a token is ‘seen’, rather than generating unseen tokens and calculating smoothed probabilities. This approach may change depending on results.</p>
 </section>
 <section id="how-do-you-evaluate-whether-your-model-is-any-good" class="level3" data-number="9.1.5">
 <h3 data-number="9.1.5" class="anchored" data-anchor-id="how-do-you-evaluate-whether-your-model-is-any-good"><span class="header-section-number">9.1.5</span> How do you evaluate whether your model is any good?</h3>
-<p>I will split the sampled data into train, development and test subsets, mostly likely in a 60/30/10 ratio. The development subset will be used to tune hyperparameters in the models built using the training data and the test dataset will be used to test final accuracy. Accuracy evaluation metrics will include the proportion of time the actual word is within the top three or top five predicted words. Perplexity will also be used to comparatively assess different models, aiming for the lowest perplexity.</p>
+<p>I will split the sampled data into train, development and test subsets, mostly likely in a 60/30/10 ratio. The development subset will be used to tune hyper-parameters in the models built using the training data and the test dataset will be used to test final accuracy. Accuracy evaluation metrics will include the proportion of time the actual word is within the top three or top five predicted words. Perplexity will also be used to comparatively assess different models, aiming for the lowest perplexity.</p>
 </section>
 <section id="how-can-you-use-backoff-models-to-estimate-the-probability-of-unobserved-n-grams" class="level3" data-number="9.1.6">
 <h3 data-number="9.1.6" class="anchored" data-anchor-id="how-can-you-use-backoff-models-to-estimate-the-probability-of-unobserved-n-grams"><span class="header-section-number">9.1.6</span> How can you use backoff models to estimate the probability of unobserved n-grams?</h3>
-<p>I plan to use a combination of backoff models and interpolation to combine predictions from multiple ngram models. For example, the last five words entered by the user will be checked in the six-gram model and if it doesn’t appear, the last 4 words will be checked in the five-gram model and so on until the unigram model, which will simply suggest the most frequently occuring words in the corpus. In occasions where multiple ngrams can be found in the different ngram models, probabilities will be calculated across all of them to provide final predictions. These probabilities will be weighted via interpolation using values informed by the hyperparamter tuning.</p>
+<p>I plan to use a combination of backoff models and interpolation to combine predictions from multiple ngram models. For example, the last five words entered by the user will be checked in the six-gram model and if it doesn’t appear, the last 4 words will be checked in the five-gram model and so on until the unigram model, which will simply suggest the most frequently occurring words in the corpus. In occasions where multiple ngrams can be found in the different ngram models, probabilities will be calculated across all of them to provide final predictions. These probabilities will be weighted via interpolation using values informed by the hyperparamter tuning.</p>
 </section>
 </section>
 <section id="prediction-algorithm" class="level2" data-number="9.2">
 <h2 data-number="9.2" class="anchored" data-anchor-id="prediction-algorithm"><span class="header-section-number">9.2</span> Prediction algorithm</h2>
-<p>maybe use interpolation instead. go back to unigram model. or might have prediction on <unk> -&gt; next word</unk></p>
-<p>Data! more sample don’t remove stop words other considerations like start and end of text.</p>
-<p>train/test split</p>
-<p>considerations on size vs speed and accuracy. more text the better… but limitations here.</p>
-<p>General details of model. Provide answers to questions posed in assignment.</p>
+<p>The detail of my plan to create a prediction algorithm is outlined above. In addition to this, there are few deviations I will make from the way the data has been processed so far, and a few changes I will consider making depending on initial prediction results.</p>
+<p>I have maintained this report as a point in time summary of progress and so it won’t completely describe the data that I end up using in the prediction algorithm.</p>
+<section id="stop-words" class="level3" data-number="9.2.1">
+<h3 data-number="9.2.1" class="anchored" data-anchor-id="stop-words"><span class="header-section-number">9.2.1</span> Stop words</h3>
+<p>Based on my understanding of common natural language processing (NLP) key pre-processing steps, I removed stop words from my sample but I can now see that this was the wrong decision. Stop words (“the”, “I”, “a”) actually are an important part of natural language and so should be included if the goal is to predict the next word in a sequence. They are less relevant in other NLP tasks like classification.</p>
+</section>
+<section id="sample-size" class="level3" data-number="9.2.2">
+<h3 data-number="9.2.2" class="anchored" data-anchor-id="sample-size"><span class="header-section-number">9.2.2</span> Sample size</h3>
+<p>I initially took 10,000 items from each source (~10%), but I think I will probably need to include more to enable more accurate predictions.</p>
+</section>
+<section id="traintest-split-for-model-evaluation" class="level3" data-number="9.2.3">
+<h3 data-number="9.2.3" class="anchored" data-anchor-id="traintest-split-for-model-evaluation"><span class="header-section-number">9.2.3</span> Train/test split for model evaluation</h3>
+<p>A larger sample will be particularly useful considering that I will split the sample into training, development and testing subsets.</p>
+</section>
+<section id="other-changes-to-consider" class="level3" data-number="9.2.4">
+<h3 data-number="9.2.4" class="anchored" data-anchor-id="other-changes-to-consider"><span class="header-section-number">9.2.4</span> Other changes to consider</h3>
+<p>My planned approach does not incorporate any smoothing and my models do not include 0-frequency words. Hopefully what this enables in terms of reduced model size compensates for the lack of potential benefits from smoothing.</p>
+<p>I expect this to be a trade-off throughout the remainder of the project: Including enough data in the model to maximise it’s exposure to word sequence combinations, whilst not making it so large that it exceeds Shiny app limitations or becomes inefficient and leads to a poor user experience.</p>
+</section>
 </section>
 <section id="shiny-app" class="level2" data-number="9.3">
 <h2 data-number="9.3" class="anchored" data-anchor-id="shiny-app"><span class="header-section-number">9.3</span> Shiny App</h2>
-<p>Link to repo: full code etc</p>
+<p>For the R Shiny application for this project, I plan to build a relatively simple app whereby users can enter text into a text box and ultimately the app will suggest the most likely next five words. It will do this by looking at the last n words in the text and looking for these in various n-gram models, as described above. Potentially I will make these suggested words into buttons so that the user can click on them and that word will be added to the entered text so that the possible <em>next</em> word is suggested, and so on.</p>
+<p>I plan to include project background information in the app and details on how to use it and interpret the results.</p>
+<p>I will consider including other features to enhance the user experience like a timer to show computation time for each prediction.</p>
 </section>
+</section>
+<section id="repository-link" class="level1" data-number="10">
+<h1 data-number="10"><span class="header-section-number">10</span> Repository link</h1>
+<p><a href="https://github.com/alexjhall/DataScienceCapstone">This repository</a> contains the files and code for this project, including that used to generate this report.</p>
 </section>
 
 </main>

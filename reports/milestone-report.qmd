@@ -41,6 +41,9 @@ trigram_df <- tar_read(preprocess_tokenise_trigram, store = here("_targets"))
 
 
 # Introduction
+I'll acknowledge that this report could be more brief and concise, but hopefully is written in a way that a non-technical person could understand. I also think it would lose important context on the exploration to date if it was shorter. 
+Hopefully reviewers will not grade this element too harshly.
+
 ## Background
 This milestone report is for the week 2 assignment of the capstone project, as part of the John Hopkins University Data Science Specialisation.
 
@@ -139,7 +142,7 @@ count_word_df_head %>%
 
 
 ## Frequency by source
-By source, there are some more differences. 'Time' and 'people' are still top for Blogs and News sources, but 'love', 'day' and 'rt' (retweet) are hier for the Twitter source.
+By source, there are some more differences. 'Time' and 'people' are still top for Blogs and News sources, but 'love', 'day' and 'rt' (retweet) are higher for the Twitter source.
 
 ```{r}
 ## Count by word - grouped
@@ -367,7 +370,7 @@ count_bigram_df_grp %>%
 # Trigram exploration
 
 ## Overall frequency
-Gov Chris Christie was a more frequently observed trigram. Other names appeared higher in this list.
+Gov Chris Christie was the most frequently observed trigram. Other names (people, places, titles) appeared towards the top of this list.
 
 
 ```{r}
@@ -492,12 +495,12 @@ The `hunspell::hunspell_check()` function classified a lot of words (`r word_df_
 
 I will first answer the questions posed for consideration in the assignment, then I will give a summary of my plans for the prediction algorithm and Shiny app.
 
-## Questions to consider
+## Task 3 Questions to consider
 
 ### How can you efficiently store an n-gram model (think Markov Chains)?
 My current plan is to use ngram models which, to my understanding, are a form of Markov Chain. The assumption is that the previous word (bigram) or word before the previous word (trigram) can be used to predict the next word, and probabilities can be calculated for transitioning from one state to another. 
 
-My only reservation with this approach so far is that my models do not include frequencies for tokens (unigrams, bigrams, trigrams) that were not in the sampled data. This does dramatically reduce the size of the models, but does not seem to allow smoothing. Perhaps unseen tokens could be generated and smoothed probabilities assigned, which could aid the final prediction. This will be explored in later steps of this project.
+My only reservation with this approach so far is that my models do not include frequencies for tokens (unigrams, bigrams, trigrams) that were not in the sampled data. This does dramatically reduce the size of the models, but does not seem to allow smoothing, at least not for the purposes of making unseen words possible, probability-wise. Perhaps unseen tokens could be generated and smoothed probabilities assigned, which could aid the final prediction. This will be explored in later steps of this project.
 
 I am currently planning to use 5-gram and 6-gram models, but these may be too sparse and not generalisable. 
 
@@ -508,61 +511,50 @@ For predicted words with low probabilities (based on low frequency in corpus), I
 I am going to attempt a combination of six models (unigram to six-gram), so that up to the last five words of a user input can be used in the prediction. As above, this may be revised if it means the model is too large and/or this does not significantly improve the accuracy.
 
 ### Can you think of simple ways to "smooth" the probabilities (think about giving all n-grams a non-zero probability even if they aren't observed in the data)?
-There are various methods available for smoothing from simple Laplace smoothing up to Kneser-Ney smoothing. As it stands, my models only include tokens observed in the sampled data. The plan is that a 'backoff' approach can be used until a token is 'seen', rather than generating unseen tokens and calculating smoothed probabilities. This approach may change depending on resuts.
+There are various methods available for smoothing from simple Laplace smoothing up to Kneser-Ney smoothing. As it stands, my models only include tokens observed in the sampled data. The plan is that a 'backoff' approach can be used until a token is 'seen', rather than generating unseen tokens and calculating smoothed probabilities. This approach may change depending on results.
 
 ### How do you evaluate whether your model is any good?
-I will split the sampled data into train, development and test subsets, mostly likely in a 60/30/10 ratio. The development subset will be used to tune hyperparameters in the models built using the training data and the test dataset will be used to test final accuracy. Accuracy evaluation metrics will include the proportion of time the actual word is within the top three or top five predicted words. Perplexity will also be used to comparatively assess different models, aiming for the lowest perplexity.
+I will split the sampled data into train, development and test subsets, mostly likely in a 60/30/10 ratio. The development subset will be used to tune hyper-parameters in the models built using the training data and the test dataset will be used to test final accuracy. Accuracy evaluation metrics will include the proportion of time the actual word is within the top three or top five predicted words. Perplexity will also be used to comparatively assess different models, aiming for the lowest perplexity.
 
 ### How can you use backoff models to estimate the probability of unobserved n-grams?
-I plan to use a combination of backoff models and interpolation to combine predictions from multiple ngram models. For example, the last five words entered by the user will be checked in the six-gram model and if it doesn't appear, the last 4 words will be checked in the five-gram model and so on until the unigram model, which will simply suggest the most frequently occuring words in the corpus. 
+I plan to use a combination of backoff models and interpolation to combine predictions from multiple ngram models. For example, the last five words entered by the user will be checked in the six-gram model and if it doesn't appear, the last 4 words will be checked in the five-gram model and so on until the unigram model, which will simply suggest the most frequently occurring words in the corpus. 
 In occasions where multiple ngrams can be found in the different ngram models, probabilities will be calculated across all of them to provide final predictions. These probabilities will be weighted via interpolation using values informed by the hyperparamter tuning.
 
 
 
 
-
-
-
-
 ## Prediction algorithm
+The detail of my plan to create a prediction algorithm is outlined above. In addition to this, there are few deviations I will make from the way the data has been processed so far, and a few changes I will consider making depending on initial prediction results.
+
+I have maintained this report as a point in time summary of progress and so it won't completely describe the data that I end up using in the prediction algorithm.
+
+### Stop words
+Based on my understanding of common natural language processing (NLP) key pre-processing steps, I removed stop words from my sample but I can now see that this was the wrong decision. Stop words ("the", "I", "a") actually are an important part of natural language and so should be included if the goal is to predict the next word in a sequence. They are less relevant in other NLP tasks like classification.
 
 
+### Sample size
+I initially took 10,000 items from each source (~10%), but I think I will probably need to include more to enable more accurate predictions.
 
-maybe use interpolation instead.
-go back to unigram model.
-or might have prediction on <UNK> -> next word
-
-
-Data!
-more sample
-don't remove stop words
-other considerations like start and end of text.
+### Train/test split for model evaluation
+A larger sample will be particularly useful considering that I will split the sample into training, development and testing subsets.
 
 
-train/test split
+### Other changes to consider
+My planned approach does not incorporate any smoothing and my models do not include 0-frequency words. Hopefully what this enables in terms of reduced model size compensates for the lack of potential benefits from smoothing.
 
-
-considerations on size vs speed and accuracy. more text the better... but limitations here.
-
-
-General details of model. Provide answers to questions posed in assignment.
-
+I expect this to be a trade-off throughout the remainder of the project: Including enough data in the model to maximise it's exposure to word sequence combinations, whilst not making it so large that it exceeds Shiny app limitations or becomes inefficient and leads to a poor user experience.
 
 
 ## Shiny App
+For the R Shiny application for this project, I plan to build a relatively simple app whereby users can enter text into a text box and ultimately the app will suggest the most likely next five words. It will do this by looking at the last n words in the text and looking for these in various n-gram models, as described above. Potentially I will make these suggested words into buttons so that the user can click on them and that word will be added to the entered text so that the possible *next* word is suggested, and so on.
+
+I plan to include project background information in the app and details on how to use it and interpret the results.
+
+I will consider including other features to enhance the user experience like a timer to show computation time for each prediction.
 
 
 
 
-
-
-
-
-
-
-
-
-Link to repo: 
-full code etc
-
+# Repository link
+[This repository](https://github.com/alexjhall/DataScienceCapstone) contains the files and code for this project, including that used to generate this report.
 

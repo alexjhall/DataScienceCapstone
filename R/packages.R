@@ -41,6 +41,9 @@ library(stringr)
 library(cld2) ## For detecting language
 library(hunspell) ## Also for detecting language, more of spell check?
 
+# modelling
+library(tidymodels)
+
 # markov chain
 library(markovchain)
 

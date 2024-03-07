@@ -3,6 +3,37 @@
 
 
 
+## Check size of models
+
+
+
+sixgram <- tar_read(sixgram_model)
+bigram <- tar_read(bigram_model)
+## check size
+print(object.size(bigram), units = "Mb", standard = "auto", digits = 1L)
+
+
+
+
+
+
+
+
+## Look at train/val/test split
+
+
+data <- tar_read(train_val_test_split)
+
+test_data <- rsample::training(data)
+
+
+
+
+
+
+
+
+
 
 ## Looking at output
 data <- tar_read(sixgram_model)
