@@ -298,52 +298,48 @@ list(
   tar_target(
       preprocess_tokenise_premodel,
       preprocess_tokenise_premodel_function(rsample::training(train_val_test_split))
-
   ),
-
 
   ## Pre-processing and tokenisation into bigrams
   tar_target(
       preprocess_tokenise_bigram_premodel,
       preprocess_bigram_premodel_function(rsample::training(train_val_test_split))
-
   ),
 
   ## Pre-processing and tokenisation into trigrams
   tar_target(
       preprocess_tokenise_trigram_premodel,
       preprocess_trigram_premodel_function(rsample::training(train_val_test_split))
-
   ),
 
   ## Pre-processing and tokenisation into quadgrams
   tar_target(
       preprocess_tokenise_quadgram_premodel,
       preprocess_quadgram_premodel_function(rsample::training(train_val_test_split))
-
   ),
 
   ## Pre-processing and tokenisation into fivegrams
   tar_target(
       preprocess_tokenise_fivegram_premodel,
       preprocess_fivegram_premodel_function(rsample::training(train_val_test_split))
-
   ),
 
   ## Pre-processing and tokenisation into sixgrams
   tar_target(
       preprocess_tokenise_sixgram_premodel,
       preprocess_sixgram_premodel_function(rsample::training(train_val_test_split))
-
   ),
 
 
   ## *************************************************
-  ## Create ngrams
+  ## Create training ngrams
   ## *************************************************
 
   ## Unigram - Need to work on this
-
+  tar_target(
+      unigram_model,
+      create_unigram_function(preprocess_tokenise_premodel)
+  ),
 
   ## Bigram
   tar_target(
@@ -374,6 +370,121 @@ list(
       sixgram_model,
       create_ngram_function(preprocess_tokenise_sixgram_premodel)
   ),
+  
+  
+  ## *************************************************
+  ## Create validation testing ngrams
+  ## *************************************************
+  
+  
+  ## *************************************************
+  ## Validation testing version 
+  ## Tokenisation with stop words included
+  
+  ## unigrams
+  ## not included yet.
+  
+  ## Pre-processing and tokenisation into bigrams
+  tar_target(
+      preprocess_tokenise_bigram_premodel_val,
+      preprocess_bigram_premodel_function(rsample::validation(train_val_test_split))
+  ),
+  
+  ## Pre-processing and tokenisation into trigrams
+  tar_target(
+      preprocess_tokenise_trigram_premodel_val,
+      preprocess_trigram_premodel_function(rsample::validation(train_val_test_split))
+  ),
+  
+  ## Pre-processing and tokenisation into quadgrams
+  tar_target(
+      preprocess_tokenise_quadgram_premodel_val,
+      preprocess_quadgram_premodel_function(rsample::validation(train_val_test_split))
+  ),
+  
+  ## Pre-processing and tokenisation into fivegrams
+  tar_target(
+      preprocess_tokenise_fivegram_premodel_val,
+      preprocess_fivegram_premodel_function(rsample::validation(train_val_test_split))
+  ),
+  
+  ## Pre-processing and tokenisation into sixgrams
+  tar_target(
+      preprocess_tokenise_sixgram_premodel_val,
+      preprocess_sixgram_premodel_function(rsample::validation(train_val_test_split))
+  ),
+  
+  
+  ## *************************************************
+  ## Create validation testing history/text datasets
+  ## *************************************************
+  
+  ## Essentially split each into 'history' and 'next_word'
+  ## Do this for each ngram, then combine into one.
+  
+  ## Bigram model
+  tar_target(
+      hist_text_val_split_bigram,
+      split_ngram_function(preprocess_tokenise_bigram_premodel_val)
+  ),
+  
+  ## Trigram model
+  tar_target(
+      hist_text_val_split_trigram,
+      split_ngram_function(preprocess_tokenise_trigram_premodel_val)
+  ),
+  
+  ## Quadgram model
+  tar_target(
+      hist_text_val_split_quadgram,
+      split_ngram_function(preprocess_tokenise_quadgram_premodel_val)
+  ),
+  
+  ## Fivegram model
+  tar_target(
+      hist_text_val_split_fivegram,
+      split_ngram_function(preprocess_tokenise_fivegram_premodel_val)
+  ),
+  
+  ## Sixgram model
+  tar_target(
+      hist_text_val_split_sixgram,
+      split_ngram_function(preprocess_tokenise_sixgram_premodel_val)
+  ),
+  
+  ## Combine all
+  tar_target(
+      hist_text_val_split_all,
+      rbind(
+          hist_text_val_split_bigram,
+          hist_text_val_split_trigram,
+          hist_text_val_split_quadgram,
+          hist_text_val_split_fivegram,
+          hist_text_val_split_sixgram
+      )
+  ),
+  
+  
+  
+  ## *************************************************
+  ## Validation testing
+  ## *************************************************
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   
   
   

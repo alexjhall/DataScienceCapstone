@@ -3,14 +3,208 @@
 
 
 
-## Check size of models
+data <- tar_read(hist_text_val_split_all)
+
+train_data <- tar_read(bigram_model)
 
 
-
-sixgram <- tar_read(sixgram_model)
+## Load models
+unigram <- tar_read(unigram_model)
 bigram <- tar_read(bigram_model)
-## check size
-print(object.size(bigram), units = "Mb", standard = "auto", digits = 1L)
+trigram <- tar_read(trigram_model)
+quadgram <- tar_read(quadgram_model)
+fivegram <- tar_read(fivegram_model)
+sixgram <- tar_read(sixgram_model)
+
+## Create list of models
+model_list <- list(
+    # unigram,
+    bigram,
+    trigram,
+    quadgram,
+    fivegram,
+    sixgram
+)
+
+## probably remove individual models after putting into list
+
+
+
+## Build prediction model
+
+## Try bigrams first
+
+## Phrase to predict
+input_text <- "here are a few"
+# pred_text <- "what"
+
+## Split based on space
+input_text_split <- as.character(str_split(input_text, pattern = " ", simplify = TRUE))
+
+## To be used in control flow
+input_text_length <- length(input_text_split)
+
+
+
+
+## First condition - always expecting one word. Can build something into app to not do anything until a word is typed
+hist_bigram <- tail(input_text_split,1)
+## if condition
+# bigram
+if(input_text_length >= 1){
+    hist_bigram <- tail(input_text_split,1)
+} else {
+    hist_bigram <- NA
+}
+# trigram
+if(input_text_length >= 2){
+    hist_trigram <- paste(tail(input_text_split,2), collapse = ' ')
+} else {
+    hist_trigram <- NA
+}
+
+# quadgram
+if(input_text_length >= 3){
+    hist_quadgram <- paste(tail(input_text_split,3), collapse = ' ') 
+} else {
+    hist_quadgram <- NA
+}
+
+# fivegram
+if(input_text_length >= 4){
+    hist_fivegram <- paste(tail(input_text_split,4), collapse = ' ')
+} else {
+    hist_fivegram <- NA
+}
+
+# sixgram
+if(input_text_length >= 5){
+    hist_sixgram <- paste(tail(input_text_split,5), collapse = ' ')
+} else {
+    hist_sixgram <- NA
+}
+
+
+
+
+
+
+
+## put into while loop
+
+# set up counter
+input_text_length_counter = 1
+
+# set up list of dataframes?
+pred_word_list = list()
+
+while(input_text_length_counter < input_text_length){ 
+    
+    
+    ## get data
+    ngram_model_data <- model_list[[input_text_length_counter]]
+    
+    ## get last n words from string and combine into single character, separated by spaces.
+    input_text_ngram <- paste(tail(input_text_split,input_text_length_counter), collapse = ' ')
+    
+    ## Filter training data on input_text_ngram
+    preds <- 
+        ngram_model_data %>%
+        filter(history_text == input_text_ngram)
+    
+    ## Add dataframe to list
+    pred_word_list[[input_text_length_counter]] <- preds
+    
+    ## Increment counter
+    input_text_length_counter <- input_text_length_counter + 1
+}
+
+
+
+
+ngram_model_data <- model_list[[1]]
+
+
+    
+    
+    str_sub(pred_text_split,
+                       start = -2,
+                       end = -1)
+    
+    
+    
+    separate_wider_regex(pred_text, c(history_text = ".*", " ", next_word = ".*?"))
+
+
+
+
+
+## Subset long text to search in each ngram
+
+ 
+
+
+
+
+
+
+
+
+
+## dataframe
+
+pred_df <- 
+    tibble(
+        ngram = "ngram",
+        word = "word",
+        prob = "prob"
+    )
+
+
+
+
+
+
+
+
+
+
+## tidyverse manipulate data
+preds <- 
+    train_data %>%
+    filter(history_text == pred_text) %>%
+    slice_max(n = 5, order_by = next_word_prob)
+
+
+
+
+
+
+
+arrange(desc(next_word_prob)) %>%
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+print(object.size(data), units = "Mb", standard = "auto", digits = 1L)
+
+
+
+
+
+
+
 
 
 
