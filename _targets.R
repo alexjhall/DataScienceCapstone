@@ -4,6 +4,7 @@ library(tarchetypes)
 
 ## Source all functions (except for _scratchpad.R which you can use for random
 ## development)
+## This also loads packages.
 lapply(
   grep(
     list.files('./R', full.names = TRUE),
@@ -13,7 +14,7 @@ lapply(
   source
 )
 
-## Packages loaded as part of above code.
+
 
 ## Set seed
 set.seed(202024)

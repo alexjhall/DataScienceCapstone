@@ -17,7 +17,7 @@ create_unigram_function <- function(data){
         group_by(text) %>%
         mutate(
             text_count = n(),
-            text_prob = text_count /total_word_count
+            text_prob = log(text_count /total_word_count)
         ) %>%
         ungroup() %>%
         select(
@@ -59,7 +59,7 @@ create_ngram_function <- function(data){
         group_by(history_text, next_word) %>%
         mutate(
             next_word_count = n(),
-            next_word_prob = next_word_count / history_text_count
+            next_word_prob = log(next_word_count / history_text_count)
         ) %>%
         ungroup() %>%
         select(

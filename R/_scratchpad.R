@@ -26,7 +26,23 @@ model_list <- list(
     sixgram
 )
 
-## probably remove individual models after putting into list
+## Vector of ngram names, to be used for intersection later
+ngram_names <- 
+    c(
+        "1-gram",
+        "2-gram",
+        "3-gram",
+        "4-gram",
+        "5-gram",
+        "6-gram"
+    )
+
+
+
+
+
+
+## probably remove individual models after putting into list (not unigram)
 
 
 
@@ -35,7 +51,7 @@ model_list <- list(
 ## Try bigrams first
 
 ## Phrase to predict
-input_text <- "here are a few"
+input_text <- "do you want"
 # pred_text <- "what"
 
 ## Split based on space
@@ -47,42 +63,42 @@ input_text_length <- length(input_text_split)
 
 
 
-## First condition - always expecting one word. Can build something into app to not do anything until a word is typed
-hist_bigram <- tail(input_text_split,1)
-## if condition
-# bigram
-if(input_text_length >= 1){
-    hist_bigram <- tail(input_text_split,1)
-} else {
-    hist_bigram <- NA
-}
-# trigram
-if(input_text_length >= 2){
-    hist_trigram <- paste(tail(input_text_split,2), collapse = ' ')
-} else {
-    hist_trigram <- NA
-}
-
-# quadgram
-if(input_text_length >= 3){
-    hist_quadgram <- paste(tail(input_text_split,3), collapse = ' ') 
-} else {
-    hist_quadgram <- NA
-}
-
-# fivegram
-if(input_text_length >= 4){
-    hist_fivegram <- paste(tail(input_text_split,4), collapse = ' ')
-} else {
-    hist_fivegram <- NA
-}
-
-# sixgram
-if(input_text_length >= 5){
-    hist_sixgram <- paste(tail(input_text_split,5), collapse = ' ')
-} else {
-    hist_sixgram <- NA
-}
+# ## First condition - always expecting one word. Can build something into app to not do anything until a word is typed
+# hist_bigram <- tail(input_text_split,1)
+# ## if condition
+# # bigram
+# if(input_text_length >= 1){
+#     hist_bigram <- tail(input_text_split,1)
+# } else {
+#     hist_bigram <- NA
+# }
+# # trigram
+# if(input_text_length >= 2){
+#     hist_trigram <- paste(tail(input_text_split,2), collapse = ' ')
+# } else {
+#     hist_trigram <- NA
+# }
+# 
+# # quadgram
+# if(input_text_length >= 3){
+#     hist_quadgram <- paste(tail(input_text_split,3), collapse = ' ') 
+# } else {
+#     hist_quadgram <- NA
+# }
+# 
+# # fivegram
+# if(input_text_length >= 4){
+#     hist_fivegram <- paste(tail(input_text_split,4), collapse = ' ')
+# } else {
+#     hist_fivegram <- NA
+# }
+# 
+# # sixgram
+# if(input_text_length >= 5){
+#     hist_sixgram <- paste(tail(input_text_split,5), collapse = ' ')
+# } else {
+#     hist_sixgram <- NA
+# }
 
 
 
@@ -98,6 +114,7 @@ input_text_length_counter = 1
 # set up list of dataframes?
 pred_word_list = list()
 
+# While loop
 while(input_text_length_counter < input_text_length){ 
     
     
@@ -110,7 +127,9 @@ while(input_text_length_counter < input_text_length){
     ## Filter training data on input_text_ngram
     preds <- 
         ngram_model_data %>%
-        filter(history_text == input_text_ngram)
+        filter(history_text == input_text_ngram) %>%
+        mutate(ngram = paste0(input_text_length_counter+1, "-gram")) %>%
+        select(-history_text)
     
     ## Add dataframe to list
     pred_word_list[[input_text_length_counter]] <- preds
@@ -121,20 +140,58 @@ while(input_text_length_counter < input_text_length){
 
 
 
+## Append unigram words
+## unigram df
+## add identifier
+unigram_df <- 
+    unigram %>%
+    mutate(ngram = "1-gram")
 
-ngram_model_data <- model_list[[1]]
+## rename
+names(unigram_df) <- c("next_word", "next_word_prob", "ngram")
+
+## append to list
+pred_word_list <- append(pred_word_list, list(unigram_df))
 
 
+## Collapse list into single dataframe
+pred_word_df <- 
+    bind_rows(pred_word_list) %>%
+    arrange(ngram, next_word)
     
-    
-    str_sub(pred_text_split,
-                       start = -2,
-                       end = -1)
-    
-    
-    
-    separate_wider_regex(pred_text, c(history_text = ".*", " ", next_word = ".*?"))
 
+
+
+## Pivot wider
+pred_word_df <-
+    pred_word_df %>%
+    pivot_wider(
+        names_from = "ngram",
+        # names_prefix = "prob_",
+        values_from = "next_word_prob",
+        values_fill = NA
+    )
+
+
+## Find missing columns
+missing_ngrams <- subset(ngram_names, !(ngram_names %in% names(pred_word_df)))
+
+## Append missing columns
+pred_word_df[, missing_ngrams] <- NA
+
+## Create combined column
+x <- 
+    pred_word_df %>%
+    mutate(comb_prob = 
+               sum(`1-gram`,
+                    `2-gram`,
+                    # `3-gram`,
+                    # `4-gram`,
+                    # `5-gram`,
+                    # `6-gram`,
+                    na.rm = TRUE
+                )
+    )
 
 
 
