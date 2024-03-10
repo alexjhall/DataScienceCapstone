@@ -18,6 +18,7 @@ create_unigram_function <- function(data){
         mutate(
             text_count = n(),
             text_prob = log(text_count /total_word_count)
+            # text_prob = text_count /total_word_count
         ) %>%
         ungroup() %>%
         select(
@@ -60,6 +61,7 @@ create_ngram_function <- function(data){
         mutate(
             next_word_count = n(),
             next_word_prob = log(next_word_count / history_text_count)
+            # next_word_prob = next_word_count / history_text_count
         ) %>%
         ungroup() %>%
         select(
@@ -117,6 +119,52 @@ split_ngram_function <- function(data){
     return(split_ngram)
        
 }
+
+
+## Model list
+## Does include unigram as 6th item in list.
+ngrams_into_list_function <- function(
+        unigram,
+        bigram,
+        trigram,
+        quadgram,
+        fivegram,
+        sixgram) {
+    
+    ## manipulate unigram model slightly
+    
+    ## Append unigram words
+    ## unigram df
+    ## add identifier
+    unigram_df <- 
+        unigram %>%
+        mutate(ngram = "1-gram")
+    
+    ## rename
+    names(unigram_df) <- c("next_word", "next_word_prob", "ngram")
+    
+    
+    ## Create list of models, with unigram at the end
+    model_list <- list(
+        bigram,
+        trigram,
+        quadgram,
+        fivegram,
+        sixgram,
+        unigram_df
+    )
+    
+    
+    ## Return list
+    return(model_list)
+    
+    
+    
+    
+}
+
+
+
 
 
 

@@ -372,6 +372,19 @@ list(
       create_ngram_function(preprocess_tokenise_sixgram_premodel)
   ),
   
+  ## Model list (exluding unigram)
+  tar_target(
+      ngram_model_list,
+      ngrams_into_list_function(
+          unigram = unigram_model,
+          bigram = bigram_model,
+          trigram = trigram_model,
+          quadgram = quadgram_model,
+          fivegram = fivegram_model,
+          sixgram = sixgram_model
+          )
+  ),
+  
   
   ## *************************************************
   ## Create validation testing ngrams

@@ -3,6 +3,85 @@
 
 
 
+## Testing the testing algorithm.
+
+## Load training data
+train_data <- tar_read(bigram_model)
+
+## subset for testing
+train_data <- train_data[sample(nrow(train_data), 10000), ]
+
+## Load model list
+model_list <- tar_read(ngram_model_list)
+
+
+## Add empty columns to dataframe to put results into
+train_data[, c("pred1_true", "pred3_true", "pred5_true", "time_taken")] <- NA
+
+## change type of time_taken
+train_data$time_taken <- as.numeric(NA)
+
+
+## For loop first to check.
+
+testing_start_time <- Sys.time()
+
+for(i in seq(nrow(train_data))){
+    
+    ## Produce list of predictions, including timer output
+    output_list <- predict_words_function(
+        input_text = train_data$history_text[i],
+        model_list)
+    
+    ## Put into variables
+    train_data$pred1_true[i] <- train_data$next_word[i] == output_list[[1]]
+    train_data$pred3_true[i] <- train_data$next_word[i] %in% output_list[[2]]
+    train_data$pred5_true[i] <- train_data$next_word[i] %in% output_list[[3]]
+    
+    train_data$time_taken[i] <- output_list[4]
+    
+}
+
+## Timer - end time
+testing_end_time <- Sys.time()
+
+## Get time
+time.taken <- testing_end_time - testing_start_time
+
+## Summary of accuracy
+print(paste("Next word accuracy: ", scales::percent(sum(train_data$pred1_true) / nrow(train_data))))
+print(paste("Top 3 accuracy: ", scales::percent(sum(train_data$pred3_true) / nrow(train_data))))
+print(paste("Top 5 accuracy: ", scales::percent(sum(train_data$pred5_true) / nrow(train_data))))
+
+
+
+
+
+## testing
+
+## Timer - end time
+start.time <- Sys.time()
+
+## Get outputs
+output_list <- predict_words_function(
+    input_text = "when would you like to",
+    model_list)
+
+## Timer - end time
+end.time <- Sys.time()
+
+## Get time
+time.taken <- end.time - start.time
+
+
+
+
+
+
+
+## Next
+
+
 data <- tar_read(hist_text_val_split_all)
 
 train_data <- tar_read(bigram_model)
@@ -51,54 +130,18 @@ ngram_names <-
 ## Try bigrams first
 
 ## Phrase to predict
-input_text <- "do you want"
+input_text <- "do you want to know how much"
 # pred_text <- "what"
 
 ## Split based on space
 input_text_split <- as.character(str_split(input_text, pattern = " ", simplify = TRUE))
 
+## Reduce size to only look at last x words
+input_text_split <- tail(input_text_split, 5)
+
 ## To be used in control flow
 input_text_length <- length(input_text_split)
 
-
-
-
-# ## First condition - always expecting one word. Can build something into app to not do anything until a word is typed
-# hist_bigram <- tail(input_text_split,1)
-# ## if condition
-# # bigram
-# if(input_text_length >= 1){
-#     hist_bigram <- tail(input_text_split,1)
-# } else {
-#     hist_bigram <- NA
-# }
-# # trigram
-# if(input_text_length >= 2){
-#     hist_trigram <- paste(tail(input_text_split,2), collapse = ' ')
-# } else {
-#     hist_trigram <- NA
-# }
-# 
-# # quadgram
-# if(input_text_length >= 3){
-#     hist_quadgram <- paste(tail(input_text_split,3), collapse = ' ') 
-# } else {
-#     hist_quadgram <- NA
-# }
-# 
-# # fivegram
-# if(input_text_length >= 4){
-#     hist_fivegram <- paste(tail(input_text_split,4), collapse = ' ')
-# } else {
-#     hist_fivegram <- NA
-# }
-# 
-# # sixgram
-# if(input_text_length >= 5){
-#     hist_sixgram <- paste(tail(input_text_split,5), collapse = ' ')
-# } else {
-#     hist_sixgram <- NA
-# }
 
 
 
@@ -177,21 +220,24 @@ pred_word_df <-
 missing_ngrams <- subset(ngram_names, !(ngram_names %in% names(pred_word_df)))
 
 ## Append missing columns
-pred_word_df[, missing_ngrams] <- NA
+pred_word_df[, missing_ngrams] <- as.numeric(NA)
 
 ## Create combined column
-x <- 
+pred_word_df <- 
     pred_word_df %>%
     mutate(comb_prob = 
-               sum(`1-gram`,
-                    `2-gram`,
-                    # `3-gram`,
-                    # `4-gram`,
-                    # `5-gram`,
-                    # `6-gram`,
-                    na.rm = TRUE
-                )
-    )
+               select(., `1-gram`:`6-gram`) %>%
+               rowSums(na.rm = TRUE)
+    ) %>%
+    arrange(desc(comb_prob))
+
+## Get predictions
+pred_top1 <- pred_word_df$next_word[1]
+pred_top3 <- pred_word_df$next_word[1:3]
+pred_top5 <- pred_word_df$next_word[1:5]
+    
+
+
 
 
 
@@ -199,6 +245,8 @@ x <-
 ## Subset long text to search in each ngram
 
  
+
+
 
 
 
