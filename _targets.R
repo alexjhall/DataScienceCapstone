@@ -598,11 +598,11 @@ list(
   ## Create training ngrams
   ## *************************************************
 
-  # ## Unigram - Need to work on this
-  # tar_target(
-  #     unigram_model_all,
-  #     create_unigram_function(preprocess_tokenise_premodel_all)
-  # ),
+  ## Unigram - Need to work on this
+  tar_target(
+      unigram_model_all,
+      create_unigram_function(preprocess_tokenise_premodel_all)
+  ),
 
   ## Bigram
   tar_target(
@@ -610,30 +610,30 @@ list(
       create_ngram_function(preprocess_tokenise_bigram_premodel_all)
   ),
 
-  # ## Trigram
-  # tar_target(
-  #     trigram_model_all,
-  #     create_ngram_function(preprocess_tokenise_trigram_premodel_all)
-  # ),
-  # 
-  # ## Quadgram
-  # tar_target(
-  #     quadgram_model_all,
-  #     create_ngram_function(preprocess_tokenise_quadgram_premodel_all)
-  # ),
-  # 
-  # ## Fivegram
-  # tar_target(
-  #     fivegram_model_all,
-  #     create_ngram_function(preprocess_tokenise_fivegram_premodel_all)
-  # ),
+  ## Trigram
+  tar_target(
+      trigram_model_all,
+      create_ngram_function(preprocess_tokenise_trigram_premodel_all)
+  ),
 
-  # ## Sixgram
-  # tar_target(
-  #     sixgram_model_all,
-  #     create_ngram_function(preprocess_tokenise_sixgram_premodel_all)
-  # ),
-  # 
+  ## Quadgram
+  tar_target(
+      quadgram_model_all,
+      create_ngram_function(preprocess_tokenise_quadgram_premodel_all)
+  ),
+
+  ## Fivegram
+  tar_target(
+      fivegram_model_all,
+      create_ngram_function(preprocess_tokenise_fivegram_premodel_all)
+  ),
+
+  ## Sixgram
+  tar_target(
+      sixgram_model_all,
+      create_ngram_function(preprocess_tokenise_sixgram_premodel_all)
+  ),
+
   # ## Model list (exluding unigram)
   # tar_target(
   #     ngram_model_list_all,

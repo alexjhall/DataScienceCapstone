@@ -4,37 +4,29 @@
 ## Unigram
 create_unigram_function <- function(data){
     
-    ## subset data to column with text
-    data_text <- data[, 3]
+    ## Convert to data.table in place
+    setDT(data)
     
-    ## Remove first object
-    rm(data)
+    ## Subset
+    data <- data[, 3, with=F]
     
-    # rename column to be agnostic of ngram type
-    names(data_text) <- "text"
+    ## change names
+    setnames(data, colnames(data), "text")
     
-    ## create dataframe
-    ngram_probs <-
-        data_text  %>%
-        mutate(total_word_count = n()) %>%
-        group_by(text) %>%
-        mutate(
-            text_count = n(),
-            text_prob = log(text_count /total_word_count)
-            # text_prob = text_count /total_word_count
-        ) %>%
-        ungroup() %>%
-        select(
-            text,
-            text_prob
-        ) %>%
-        distinct() %>%
-        arrange(desc(text_prob))
+    ## total_word_count
+    data[, total_word_count := .N]
+    ## text count and prob
+    data[, text_count := .N, by=text][, text_prob := log(text_count / total_word_count)]
+    ## Remove columns not needed
+    data[, c("text_count","total_word_count"):=NULL]
+    # unique(data)
+    data <- unique(data)
+    ## Set keys
+    setkey(data, text)
     
     
     ## return
-    return(ngram_probs)
-    
+    return(data)
     
     
 }
@@ -46,41 +38,36 @@ create_unigram_function <- function(data){
 ## Create function
 create_ngram_function <- function(data){
     
-    ## subset data to column with text
-    data_text <- data[, 3]
     
-    ## Remove first object
-    rm(data)
+    ## Convert to data.table in place
+    setDT(data)
     
-    # rename column to be agnostic of ngram type
-    names(data_text) <- "text"
-
+    ## Subset
+    data <- data[, 3, with=F]
     
-    ## create dataframe
-    ngram_probs <-
-        data_text  %>%
-        separate_wider_regex(text, c(history_text = ".*", " ", next_word = ".*?")) %>%
-        group_by(history_text) %>%
-        mutate(history_text_count = n()) %>%
-        ungroup() %>%
-        group_by(history_text, next_word) %>%
-        mutate(
-            next_word_count = n(),
-            next_word_prob = log(next_word_count / history_text_count)
-            # next_word_prob = next_word_count / history_text_count
-        ) %>%
-        ungroup() %>%
-        select(
-            history_text, 
-            next_word,
-            next_word_prob
-        ) %>%
-        distinct() %>%
-        arrange(desc(next_word_prob))
+    ## change names
+    setnames(data, colnames(data), "text")
+    
+    
+    ## Create two new columns and split text
+    data[, c("history_text","next_word") := tstrsplit(text, ' (?=[^ ]*$)',perl=TRUE)]
+    ## Remove original column
+    data[, text:=NULL]
+    
+    ## history_text_count
+    data[, history_text_count := .N, by=history_text]
+    ## next_word_count and prob
+    data[, next_word_count := .N, by = .(history_text, next_word)][, next_word_prob := log(next_word_count / history_text_count)]
+    ## Remove columns not needed
+    data[, c("history_text_count","next_word_count"):=NULL]
+    # unique(data)
+    data <- unique(data)
+    ## Set keys
+    setkey(data, history_text)
     
     
     ## return
-    return(ngram_probs)
+    return(data)
     
 }
 
@@ -97,35 +84,32 @@ split_ngram_function <- function(data){
     
     
     ## subset data to column with text
-    data_text <- data[, 3]
-    
-    ## Remove first object
-    rm(data)
+    data <- data[, 3]
     
     ## Pull out ngram type as char
-    ngram_type <- names(data_text)
+    ngram_type <- names(data)
     
     ## Add column with value of text column header
-    data_text <- 
-        data_text %>%
-        mutate(ngram = rep(ngram_type, nrow(data_text))) %>%
+    data <- 
+        data %>%
+        mutate(ngram = rep(ngram_type, nrow(data))) %>%
         relocate(last_col()) 
     
     # rename column to be agnostic of ngram type
-    names(data_text) <- "text"
-    names(data_text) <- c(
+    names(data) <- "text"
+    names(data) <- c(
         "ngram",
         "text"
     )
     
     ## Create dataframe, splitting into histry and next word
-    split_ngram <-
-        data_text  %>%
+    data <-
+        data  %>%
         separate_wider_regex(text, c(history_text = ".*", " ", next_word = ".*?"))
         
  
     ## Return
-    return(split_ngram)
+    return(data)
        
 }
 
