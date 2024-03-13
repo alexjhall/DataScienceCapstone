@@ -3,42 +3,370 @@
 
 
 
+
+
+
+
+# ## Trying to make create_ngram_function more efficient
+# 
+# ## subset data to column with text
+# data <- data[, 3]
+# 
+# ## Remove first object
+# rm(data)
+# 
+# # rename column to be agnostic of ngram type
+# names(data) <- "text"
+# 
+# 
+# ## Timer - start time
+# testing_start_time <- Sys.time()
+# 
+# ## split text
+# data <-
+#     data  %>%
+#     separate_wider_regex(text, c(history_text = ".*", " ", next_word = ".*?"))
+# 
+# ## Timer - end time
+# testing_end_time <- Sys.time()
+# 
+# ## Get time
+# time.taken <- testing_end_time - testing_start_time
+# print(time.taken)
+
+
+## ************************************
+## data.table version
+library(data.table)
+
+
+## Try to do all in one with chains
+
+
+
+## Read in data as above
+# data <- tar_read(preprocess_tokenise_bigram_premodel_all)
+data <- tar_read(preprocess_tokenise_trigram_premodel_all)
+
+
+## Timer - start time
+testing_start_time <- Sys.time()
+
+
+## Instead, converts in place
+setDT(data)
+
+## Subset
+data <- data[, 3, with=F]
+
+## change names
+setnames(data, colnames(data), "text")
+
+
+
+## Create two new columns and split text
+data[, c("history_text","next_word") := tstrsplit(text, ' (?=[^ ]*$)',perl=TRUE)]
+## Remove original column
+data[, text:=NULL]
+
+## history_text_count
+data[, history_text_count := .N, by=history_text]
+## next_word_count and prob
+data[, next_word_count := .N, by = .(history_text, next_word)][, next_word_prob := log(next_word_count / history_text_count)]
+## Remove columns not needed
+data[, c("history_text_count","next_word_count"):=NULL]
+# unique(data)
+data <- unique(data)
+## Set keys
+setkey(data, history_text)
+
+
+## Timer - end time
+testing_end_time <- Sys.time()
+
+## Get time
+time.taken <- testing_end_time - testing_start_time
+print(time.taken)
+
+## size
+print(object.size(data), units="Mb")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## ************************************
+## data.table version
+library(data.table)
+
+
+## Read in data as above
+data <- tar_read(preprocess_tokenise_bigram_premodel_all)
+
+
+## Convert to data table
+# DT <- as.data.table(data)
+
+## Remove first object
+# rm(data)
+
+## Instead, converts in place
+setDT(data)
+
+
+## size
+print(object.size(data), units="Mb")
+
+## Subset
+data <- data[, 3, with=F]
+
+## change names
+setnames(data, colnames(data), "text")
+
+
+
+## split text
+
+## Timer - start time
+testing_start_time <- Sys.time()
+
+
+## Delete original column too.
+# cols = c("text", "history_text","next_word")
+# data[, (cols) := c(list(NULL), tstrsplit(text, ' (?=[^ ]*$)', perl=TRUE))]
+
+## Create two new columns and split text
+data[, c("history_text","next_word") := tstrsplit(text, ' (?=[^ ]*$)',perl=TRUE)]
+## Remove original column
+data[, text:=NULL]
+
+## Timer - end time
+testing_end_time <- Sys.time()
+
+## Get time
+time.taken <- testing_end_time - testing_start_time
+print(time.taken)
+
+## size
+print(object.size(data), units="Mb")
+
+
+
+## Now do group_bys
+
+## History_text_count
+## Timer - start time
+testing_start_time <- Sys.time()
+
+
+## History count
+data[, history_text_count := .N, by=history_text]
+
+## Timer - end time
+testing_end_time <- Sys.time()
+
+## Get time
+time.taken <- testing_end_time - testing_start_time
+print(time.taken)
+
+## size
+print(object.size(data), units="Mb")
+
+
+## next_word_count
+## Timer - start time
+testing_start_time <- Sys.time()
+
+
+## next_word_count
+data[, next_word_count := .N, by = .(history_text, next_word)]
+
+## probs
+data[, next_word_prob := log(next_word_count / history_text_count), by = .(history_text, next_word)]
+
+## Timer - end time
+testing_end_time <- Sys.time()
+
+## Get time
+time.taken <- testing_end_time - testing_start_time
+print(time.taken)
+
+## size
+print(object.size(data), units="Mb")
+
+
+
+
+
+
+
+
+
+
+
+
+
+# %>%
+#     group_by(history_text) %>%
+#     mutate(history_text_count = n()) %>%
+#     ungroup() %>%
+#     group_by(history_text, next_word) %>%
+#     mutate(
+#         next_word_count = n(),
+#         next_word_prob = log(next_word_count / history_text_count)
+#         # next_word_prob = next_word_count / history_text_count
+#     ) %>%
+#     ungroup() %>%
+#     select(
+#         history_text, 
+#         next_word,
+#         next_word_prob
+#     ) %>%
+#     distinct() %>%
+#     arrange(desc(next_word_prob))
+
+
+
+
+
+
+
+
+
+
+## Testing better cleaning
+
+## Read data
+text_vec <- tar_read(twitter_noprofan)
+
+data <- tibble(text = text_vec) %>% mutate(linenumber = row_number())
+
+## regex patterns
+replace_reg <- "https://t.co/[A-Za-z\\d]+|http://[A-Za-z\\d]+|&amp;|&lt;|&gt;|(RT|via)((?:\\b\\W*@\\w+)+)|[[:punct:]]|[[:digit:]]|[[:symbol:]]|@\\w+|http\\w+|[ \t]{2,}|^\\s+|\\s+$"
+unnest_reg <- "([^A-Za-z_\\d#@']|'(?![A-Za-z_\\d#@]))"
+
+
+## Actual tokenisation
+data_unnest <- 
+    data %>% 
+    # mutate(text = str_replace_all(text, replace_reg, "")) %>%
+    mutate(text = clean_text_function(text)) %>%
+    tidytext::unnest_tokens(
+        input = text,
+        output = bigram,
+        token = "ngrams",
+        # pattern = "unnest_reg"
+        n = 2
+    ) %>%
+    # rename(text_source = column_label) %>%
+    # dplyr::filter(!grepl('[[:digit:]]', bigram)) %>%
+    filter(!is.na(bigram))
+
+
+# comp_data <-
+#     tibble(
+#         old = data$text,
+#         new = data_unnest
+#     )
+
+
+
+
+
+
+
+
+
+
+
+
+## Original
+data_unnest <- 
+    data %>% 
+    tidytext::unnest_tokens(
+        input = text,
+        output = bigram,
+        token = "ngrams",
+        n = 2
+    ) %>%
+    rename(text_source = column_label) %>%
+    dplyr::filter(!grepl('[[:digit:]]', bigram)) %>%
+    filter(!is.na(bigram))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## Testing the testing algorithm.
-
-## Load training data
-train_data <- tar_read(bigram_model)
-
-## subset for testing
-train_data <- train_data[sample(nrow(train_data), 10000), ]
 
 ## Load model list
 model_list <- tar_read(ngram_model_list)
 
+## Load validation testing data
+val_test_data <- tar_read(hist_text_val_split_trigram)
+
+## subset for testing
+val_test_data <- val_test_data[sample(nrow(val_test_data), 100), ]
+
+
+
 
 ## Add empty columns to dataframe to put results into
-train_data[, c("pred1_true", "pred3_true", "pred5_true", "time_taken")] <- NA
+val_test_data[, c("pred1_true", "pred3_true", "pred5_true", "time_taken")] <- NA
 
 ## change type of time_taken
-train_data$time_taken <- as.numeric(NA)
+val_test_data$time_taken <- as.numeric(NA)
 
 
 ## For loop first to check.
 
 testing_start_time <- Sys.time()
 
-for(i in seq(nrow(train_data))){
+for(i in seq(nrow(val_test_data))){
     
     ## Produce list of predictions, including timer output
     output_list <- predict_words_function(
-        input_text = train_data$history_text[i],
+        input_text = val_test_data$history_text[i],
         model_list)
     
     ## Put into variables
-    train_data$pred1_true[i] <- train_data$next_word[i] == output_list[[1]]
-    train_data$pred3_true[i] <- train_data$next_word[i] %in% output_list[[2]]
-    train_data$pred5_true[i] <- train_data$next_word[i] %in% output_list[[3]]
+    val_test_data$pred1_true[i] <- val_test_data$next_word[i] == output_list[[1]]
+    val_test_data$pred3_true[i] <- val_test_data$next_word[i] %in% output_list[[2]]
+    val_test_data$pred5_true[i] <- val_test_data$next_word[i] %in% output_list[[3]]
     
-    train_data$time_taken[i] <- output_list[4]
+    val_test_data$time_taken[i] <- output_list[[4]]
     
 }
 
@@ -48,10 +376,247 @@ testing_end_time <- Sys.time()
 ## Get time
 time.taken <- testing_end_time - testing_start_time
 
+
+
+
+
+
+
+
+## *******************************************************
 ## Summary of accuracy
-print(paste("Next word accuracy: ", scales::percent(sum(train_data$pred1_true) / nrow(train_data))))
-print(paste("Top 3 accuracy: ", scales::percent(sum(train_data$pred3_true) / nrow(train_data))))
-print(paste("Top 5 accuracy: ", scales::percent(sum(train_data$pred5_true) / nrow(train_data))))
+print(paste("Next word accuracy: ", scales::percent(sum(val_test_data$pred1_true) / nrow(val_test_data))))
+print(paste("Top 3 accuracy: ", scales::percent(sum(val_test_data$pred3_true) / nrow(val_test_data))))
+print(paste("Top 5 accuracy: ", scales::percent(sum(val_test_data$pred5_true) / nrow(val_test_data))))
+print(time.taken)
+
+
+
+
+
+
+
+## *******************************************************
+## Backoff version
+## *******************************************************
+
+
+## model list
+model_list <- tar_read(ngram_model_backoff_list)
+
+# input_text <- "so then I thought"
+
+## input text questions
+# input_text <- "The guy in front of me just bought a pound of bacon, a bouquet, and a case of"
+input_text <- "You're the reason why I smile everyday. Can you follow me please? It would mean the" #world
+input_text <- "Hey sunshine, can you follow me and make me the" #happiest
+input_text <- "Very early observations on the Bills game: Offense still struggling but the" # doesn't know... wrong words
+input_text <- "Go on a romantic date at the" # doesn't know... wrong words
+input_text <- "Well I'm pretty sure my granny has some old bagpipes in her garage I'll dust them off and be on my" #"own", wrong word
+input_text <- "Ohhhhh #PointBreak is on tomorrow. Love that film and haven't seen it in quite some" #time
+input_text <- "After the ice bucket challenge Louis will push his long wet hair out of his eyes with his little" #wrong words
+input_text <- "Be grateful for the good times and keep the faith during the" #lots of words, down to two word history
+input_text <- "If this isn't the cutest thing you've ever seen, then you must be"
+
+
+
+
+
+
+## Timer - end time
+# start.time <- Sys.time()
+
+
+## Split based on space
+input_text_split <- as.character(str_split(tolower(input_text), pattern = " ", simplify = TRUE))
+
+## Reduce size to only look at last x words
+input_text_split <- tail(input_text_split, 5)
+
+## To be used in control flow
+input_text_length <- length(input_text_split)
+
+
+## *******************************************************
+## New loop to look for n-gram in each n-gram model
+
+
+## Set vars
+## While loop boolean
+ngram_found <- FALSE
+
+## Counter for model
+ngram_model_counter = 1
+input_text_length_counter = 5
+
+# set up list of dataframes
+# pred_word_list = list()
+
+
+## While loop
+while(ngram_found == FALSE & input_text_length_counter >0){
+    
+    ## get data
+    ngram_model_data <- model_list[[ngram_model_counter]]
+    
+    ## get last n words from string and combine into single character, separated by spaces.
+    input_text_ngram <- paste(tail(input_text_split,input_text_length_counter), collapse = ' ')
+    
+    ## if statement to check if input text exists in ngram model
+    if(input_text_ngram %in% ngram_model_data$history_text){
+        
+        ## Filter training data on input_text_ngram
+        preds <- 
+            ngram_model_data %>%
+            filter(history_text == input_text_ngram) %>%
+            mutate(ngram = paste0(ngram_model_counter+1, "-gram")) %>%
+            select(-history_text)
+        
+        ## Add dataframe to list
+        # pred_word_list[[input_text_length_counter]] <- preds
+        
+        ## change while condition - end loop
+        ngram_found <- TRUE
+    } else {
+        
+        ## Increment counters
+        ngram_model_counter <- ngram_model_counter + 1
+        input_text_length_counter <- input_text_length_counter -1
+        
+    }
+    
+    
+    
+}
+
+
+
+
+
+
+
+
+
+
+## put into while loop
+
+# set up counter
+input_text_length_counter = 1
+
+# set up list of dataframes?
+pred_word_list = list()
+
+# While loop
+while(input_text_length_counter < input_text_length){ 
+    
+    ## get data
+    ngram_model_data <- model_list[[input_text_length_counter]]
+    
+    ## get last n words from string and combine into single character, separated by spaces.
+    input_text_ngram <- paste(tail(input_text_split,input_text_length_counter), collapse = ' ')
+    
+    ## Filter training data on input_text_ngram
+    preds <- 
+        ngram_model_data %>%
+        filter(history_text == input_text_ngram) %>%
+        mutate(ngram = paste0(input_text_length_counter+1, "-gram")) %>%
+        select(-history_text)
+    
+    ## Add dataframe to list
+    pred_word_list[[input_text_length_counter]] <- preds
+    
+    ## Increment counter
+    input_text_length_counter <- input_text_length_counter + 1
+}
+
+
+
+## Append unigram words to list
+pred_word_list <- append(pred_word_list, list(model_list[[6]]))
+
+
+## Collapse list into single dataframe
+pred_word_df <- 
+    bind_rows(pred_word_list) %>%
+    arrange(ngram, next_word)
+
+
+## Pivot wider
+pred_word_df <-
+    pred_word_df %>%
+    pivot_wider(
+        names_from = "ngram",
+        # names_prefix = "prob_",
+        values_from = "next_word_prob",
+        values_fill = NA
+    )
+
+
+## Look for missing columns
+## Vector of ngram names, to be used for intersection
+ngram_names <- 
+    c(
+        "1-gram",
+        "2-gram",
+        "3-gram",
+        "4-gram",
+        "5-gram",
+        "6-gram"
+    )
+## Pull missing columns
+missing_ngrams <- subset(ngram_names, !(ngram_names %in% names(pred_word_df)))
+
+## Append missing columns
+pred_word_df[, missing_ngrams] <- as.numeric(NA)
+
+## Create combined column
+pred_word_df <- 
+    pred_word_df %>%
+    mutate(comb_prob = 
+               select(., `1-gram`:`6-gram`) %>%
+               exp(rowSums(na.rm = TRUE))
+    ) %>%
+    arrange(desc(comb_prob))
+
+## Get predictions
+pred_top1 <- pred_word_df$next_word[1]
+pred_top3 <- pred_word_df$next_word[1:3]
+pred_top5 <- pred_word_df$next_word[1:5]
+
+
+## Timer - end time
+end.time <- Sys.time()
+
+## Get time
+time.taken <- as.numeric(end.time - start.time)
+
+
+## Make list
+return_list <- list(pred_top1, pred_top3, pred_top5, time.taken)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -64,7 +629,7 @@ start.time <- Sys.time()
 
 ## Get outputs
 output_list <- predict_words_function(
-    input_text = "when would you like to",
+    input_text = "The guy in front of me just bought a pound of bacon, a bouquet, and a case of",
     model_list)
 
 ## Timer - end time
@@ -72,12 +637,9 @@ end.time <- Sys.time()
 
 ## Get time
 time.taken <- end.time - start.time
+print(time.taken)
 
-
-
-
-
-
+output_list[[3]]
 
 ## Next
 

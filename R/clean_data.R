@@ -60,6 +60,36 @@ combine_source_vectors_function <- function(vec_list){
 
 
 ## *************************************************
+## clean text function
+## take out punctuation, numbers are other bits.
+
+clean_text_function <- function(text){
+    
+    ## Define regex
+    replace_reg <- "https://t.co/[A-Za-z\\d]+|http://[A-Za-z\\d]+|&lt;|&gt;|(RT|via)((?:\\b\\W*@\\w+)+)|[[:punct:]]|[[:digit:]]|[[:symbol:]]|@\\w+|http\\w+|[ \t]{2,}|^\\s+|\\s+$"
+    
+    ## to lower
+    text <- str_to_lower(text)
+    
+    ## replace ampersand with and
+    text <- str_replace_all(text, "&amp;", "and")
+    
+    ## Main replace
+    text <- str_replace_all(text, replace_reg, "")
+    
+    
+    
+}
+
+
+
+
+
+
+
+
+
+## *************************************************
 ## First set of functions informs EDA milestone report, removes stopwords
 
 
@@ -196,11 +226,12 @@ preprocess_tokenise_premodel_function <- function (data){
     
     data_unnest <- 
         data %>% 
+        mutate(text = clean_text_function(text)) %>%
         tidytext::unnest_tokens(
             input = text,
             output = word
         ) %>%
-        dplyr::filter(!grepl('[[:digit:]]', word)) %>%
+        # dplyr::filter(!grepl('[[:digit:]]', word)) %>%
         rename(text_source = column_label)
     
     
@@ -215,6 +246,7 @@ preprocess_bigram_premodel_function <- function (data){
     
     data_unnest <- 
         data %>% 
+        mutate(text = clean_text_function(text)) %>%
         tidytext::unnest_tokens(
             input = text,
             output = bigram,
@@ -222,7 +254,7 @@ preprocess_bigram_premodel_function <- function (data){
             n = 2
         ) %>%
         rename(text_source = column_label) %>%
-        dplyr::filter(!grepl('[[:digit:]]', bigram)) %>%
+        # dplyr::filter(!grepl('[[:digit:]]', bigram)) %>%
         filter(!is.na(bigram))
     
     
@@ -238,6 +270,7 @@ preprocess_trigram_premodel_function <- function (data){
     
     data_unnest <- 
         data %>% 
+        mutate(text = clean_text_function(text)) %>%
         tidytext::unnest_tokens(
             input = text,
             output = trigram,
@@ -245,7 +278,7 @@ preprocess_trigram_premodel_function <- function (data){
             n = 3
         ) %>%
         rename(text_source = column_label) %>%
-        dplyr::filter(!grepl('[[:digit:]]', trigram)) %>%
+        # dplyr::filter(!grepl('[[:digit:]]', trigram)) %>%
         filter(!is.na(trigram))
     
     ## Specify what to return
@@ -259,6 +292,7 @@ preprocess_quadgram_premodel_function <- function (data){
     
     data_unnest <- 
         data %>% 
+        mutate(text = clean_text_function(text)) %>%
         tidytext::unnest_tokens(
             input = text,
             output = quadgram,
@@ -266,7 +300,7 @@ preprocess_quadgram_premodel_function <- function (data){
             n = 4
         ) %>%
         rename(text_source = column_label) %>%
-        dplyr::filter(!grepl('[[:digit:]]', quadgram)) %>%
+        # dplyr::filter(!grepl('[[:digit:]]', quadgram)) %>%
         filter(!is.na(quadgram))
     
     
@@ -281,6 +315,7 @@ preprocess_fivegram_premodel_function <- function (data){
     
     data_unnest <- 
         data %>% 
+        mutate(text = clean_text_function(text)) %>%
         tidytext::unnest_tokens(
             input = text,
             output = fivegram,
@@ -288,7 +323,7 @@ preprocess_fivegram_premodel_function <- function (data){
             n = 5
         ) %>%
         rename(text_source = column_label) %>%
-        dplyr::filter(!grepl('[[:digit:]]', fivegram)) %>%
+        # dplyr::filter(!grepl('[[:digit:]]', fivegram)) %>%
         filter(!is.na(fivegram))
     
     
@@ -304,6 +339,7 @@ preprocess_sixgram_premodel_function <- function (data){
     
     data_unnest <- 
         data %>% 
+        mutate(text = clean_text_function(text)) %>%
         tidytext::unnest_tokens(
             input = text,
             output = sixgram,
@@ -311,7 +347,7 @@ preprocess_sixgram_premodel_function <- function (data){
             n = 6
         ) %>%
         rename(text_source = column_label) %>%
-        dplyr::filter(!grepl('[[:digit:]]', sixgram)) %>%
+        # dplyr::filter(!grepl('[[:digit:]]', sixgram)) %>%
         filter(!is.na(sixgram))
     
     

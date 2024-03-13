@@ -99,7 +99,7 @@ predict_words_function <- function(input_text, model_list){
         pred_word_df %>%
         mutate(comb_prob = 
                    select(., `1-gram`:`6-gram`) %>%
-                   rowSums(na.rm = TRUE)
+                   exp(rowSums(na.rm = TRUE))
         ) %>%
         arrange(desc(comb_prob))
     
@@ -126,6 +126,18 @@ predict_words_function <- function(input_text, model_list){
     
 }
 
+
+
+## Generate predicted words from input
+predict_words_backoff_function <- function(input_text, model_list){
+    
+    
+    ## Return
+    # return(return_list)
+    
+    
+    
+}
 
 
 

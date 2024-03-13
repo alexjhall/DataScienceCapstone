@@ -7,6 +7,9 @@ create_unigram_function <- function(data){
     ## subset data to column with text
     data_text <- data[, 3]
     
+    ## Remove first object
+    rm(data)
+    
     # rename column to be agnostic of ngram type
     names(data_text) <- "text"
     
@@ -45,6 +48,9 @@ create_ngram_function <- function(data){
     
     ## subset data to column with text
     data_text <- data[, 3]
+    
+    ## Remove first object
+    rm(data)
     
     # rename column to be agnostic of ngram type
     names(data_text) <- "text"
@@ -92,6 +98,9 @@ split_ngram_function <- function(data){
     
     ## subset data to column with text
     data_text <- data[, 3]
+    
+    ## Remove first object
+    rm(data)
     
     ## Pull out ngram type as char
     ngram_type <- names(data_text)
@@ -151,6 +160,48 @@ ngrams_into_list_function <- function(
         quadgram,
         fivegram,
         sixgram,
+        unigram_df
+    )
+    
+    
+    ## Return list
+    return(model_list)
+    
+    
+    
+    
+}
+
+## Model list for backoff method
+## Basically a different order
+ngrams_into_backoff_list_function <- function(
+        unigram,
+        bigram,
+        trigram,
+        quadgram,
+        fivegram,
+        sixgram) {
+    
+    ## manipulate unigram model slightly
+    
+    ## Append unigram words
+    ## unigram df
+    ## add identifier
+    unigram_df <- 
+        unigram %>%
+        mutate(ngram = "1-gram")
+    
+    ## rename
+    names(unigram_df) <- c("next_word", "next_word_prob", "ngram")
+    
+    
+    ## Create list of models, with unigram at the end
+    model_list <- list(
+        sixgram,
+        fivegram,
+        quadgram,
+        trigram,
+        bigram,
         unigram_df
     )
     
