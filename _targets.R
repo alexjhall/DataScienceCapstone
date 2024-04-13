@@ -338,67 +338,67 @@ list(
   ## Create training ngrams
   ## *************************************************
 
-  ## Unigram - Need to work on this
-  tar_target(
-      unigram_model,
-      create_unigram_function(preprocess_tokenise_premodel)
-  ),
+  # ## Unigram - Need to work on this
+  # tar_target(
+  #     unigram_model,
+  #     create_unigram_function(preprocess_tokenise_premodel)
+  # ),
+  # 
+  # ## Bigram
+  # tar_target(
+  #     bigram_model,
+  #     create_ngram_function(preprocess_tokenise_bigram_premodel)
+  # ),
+  # 
+  # ## Trigram
+  # tar_target(
+  #     trigram_model,
+  #     create_ngram_function(preprocess_tokenise_trigram_premodel)
+  # ),
+  # 
+  # ## Quadgram
+  # tar_target(
+  #     quadgram_model,
+  #     create_ngram_function(preprocess_tokenise_quadgram_premodel)
+  # ),
+  # 
+  # ## Fivegram
+  # tar_target(
+  #     fivegram_model,
+  #     create_ngram_function(preprocess_tokenise_fivegram_premodel)
+  # ),
 
-  ## Bigram
-  tar_target(
-      bigram_model,
-      create_ngram_function(preprocess_tokenise_bigram_premodel)
-  ),
-
-  ## Trigram
-  tar_target(
-      trigram_model,
-      create_ngram_function(preprocess_tokenise_trigram_premodel)
-  ),
-
-  ## Quadgram
-  tar_target(
-      quadgram_model,
-      create_ngram_function(preprocess_tokenise_quadgram_premodel)
-  ),
-
-  ## Fivegram
-  tar_target(
-      fivegram_model,
-      create_ngram_function(preprocess_tokenise_fivegram_premodel)
-  ),
-
-  ## Sixgram
-  tar_target(
-      sixgram_model,
-      create_ngram_function(preprocess_tokenise_sixgram_premodel)
-  ),
+  # ## Sixgram
+  # tar_target(
+  #     sixgram_model,
+  #     create_ngram_function(preprocess_tokenise_sixgram_premodel)
+  # ),
   
-  ## Model list (exluding unigram)
-  tar_target(
-      ngram_model_list,
-      ngrams_into_list_function(
-          unigram = unigram_model,
-          bigram = bigram_model,
-          trigram = trigram_model,
-          quadgram = quadgram_model,
-          fivegram = fivegram_model,
-          sixgram = sixgram_model
-          )
-  ),
-  
-  ## Model list (backoff)
-  tar_target(
-      ngram_model_backoff_list,
-      ngrams_into_backoff_list_function(
-          unigram = unigram_model,
-          bigram = bigram_model,
-          trigram = trigram_model,
-          quadgram = quadgram_model,
-          fivegram = fivegram_model,
-          sixgram = sixgram_model
-      )
-  ),
+  # ## Model list (exluding unigram)
+  # tar_target(
+  #     ngram_model_list,
+  #     ngrams_into_list_function(
+  #         unigram = unigram_model,
+  #         bigram = bigram_model,
+  #         trigram = trigram_model,
+  #         quadgram = quadgram_model,
+  #         fivegram = fivegram_model,
+  #         sixgram = sixgram_model
+  #         )
+  # ),
+  # 
+  # ## Model list (backoff)
+  # tar_target(
+  #     ngram_model_backoff_list,
+  #     ngrams_into_backoff_list_function(
+  #         unigram = unigram_model,
+  #         bigram = bigram_model,
+  #         trigram = trigram_model,
+  #         quadgram = quadgram_model,
+  #         fivegram = fivegram_model,
+  #         sixgram = sixgram_model
+  #     )
+  # ),
   
   
   ## *************************************************
@@ -592,47 +592,211 @@ list(
       preprocess_tokenise_sixgram_premodel_all,
       preprocess_sixgram_premodel_function(rsample::training(all_train_val_test_split))
   ),
+  
+  
+  
+  ## *************************************************
+  ## Reduced tokenised data
+  ## *************************************************
+  
+  ## Unigram
+  tar_target(
+      reduce_token_unigram_all,
+      reduce_token_function(preprocess_tokenise_premodel_all)
+  ),
+  
+  
+  ## Bigram
+  tar_target(
+      reduce_token_bigram_all,
+      reduce_token_function(preprocess_tokenise_bigram_premodel_all)
+  ),
+  
+  ## Trigram
+  tar_target(
+      reduce_token_trigram_all,
+      reduce_token_function(preprocess_tokenise_trigram_premodel_all)
+  ),
+  
+  
+  ## Quad gram
+  tar_target(
+      reduce_token_quadgram_all,
+      reduce_token_function(preprocess_tokenise_quadgram_premodel_all)
+  ),
+  
+  ## Fivegram
+  tar_target(
+      reduce_token_fivegram_all,
+      reduce_token_function(preprocess_tokenise_fivegram_premodel_all)
+  ),
+  
+  
+  ## Sixgram
+  tar_target(
+      reduce_token_sixgram_all,
+      reduce_token_function(preprocess_tokenise_sixgram_premodel_all)
+  ),
+  
+  
+  
+  
+  
 
 
   ## *************************************************
   ## Create training ngrams
   ## *************************************************
 
-  ## Unigram - Need to work on this
+  ## Unigram
   tar_target(
       unigram_model_all,
-      create_unigram_function(preprocess_tokenise_premodel_all)
+      create_unigram_function(reduce_token_unigram_all)
   ),
 
   ## Bigram
   tar_target(
       bigram_model_all,
-      create_ngram_function(preprocess_tokenise_bigram_premodel_all)
+      create_ngram_function(reduce_token_bigram_all)
   ),
 
   ## Trigram
   tar_target(
       trigram_model_all,
-      create_ngram_function(preprocess_tokenise_trigram_premodel_all)
+      create_ngram_function(reduce_token_trigram_all)
   ),
 
   ## Quadgram
   tar_target(
       quadgram_model_all,
-      create_ngram_function(preprocess_tokenise_quadgram_premodel_all)
+      create_ngram_function(reduce_token_quadgram_all)
   ),
 
   ## Fivegram
   tar_target(
       fivegram_model_all,
-      create_ngram_function(preprocess_tokenise_fivegram_premodel_all)
+      create_ngram_function(reduce_token_fivegram_all)
   ),
 
   ## Sixgram
   tar_target(
       sixgram_model_all,
-      create_ngram_function(preprocess_tokenise_sixgram_premodel_all)
+      create_ngram_function(reduce_token_sixgram_all)
   ),
+  
+  
+  ## *************************************************
+  ## Add stupid backoff score
+  ## *************************************************
+  
+  ## Unigram
+  tar_target(
+      unigram_model_all_sb,
+      add_sb_function(unigram_model_all, sbn = 1)
+  ),
+
+  ## Bigram
+  tar_target(
+      bigram_model_all_sb,
+      add_sb_function(bigram_model_all, sbn = 2)
+  ),
+  
+  ## Trigram
+  tar_target(
+      trigram_model_all_sb,
+      add_sb_function(trigram_model_all, sbn = 3)
+  ),
+  
+  ## Quadgram
+  tar_target(
+      quadgram_model_all_sb,
+      add_sb_function(quadgram_model_all, sbn = 4)
+  ),
+  
+  ## Fivegram
+  tar_target(
+      fivegram_model_all_sb,
+      add_sb_function(fivegram_model_all, sbn = 5)
+  ),
+  
+  ## Sixgram
+  tar_target(
+      sixgram_model_all_sb,
+      add_sb_function(sixgram_model_all, sbn = 6)
+  ),
+  
+  
+  
+  
+  
+  ## *************************************************
+  ## Reduce training ngram size
+  ## *************************************************
+  
+  ## Unigram
+  tar_target(
+      unigram_model_all_reduced,
+      reduce_unigram_function(unigram_model_all_sb)
+  ),
+
+  ## Bigram
+  tar_target(
+      bigram_model_all_reduced,
+      reduce_ngram_function(bigram_model_all_sb)
+  ),
+  
+  ## Trigram
+  tar_target(
+      trigram_model_all_reduced,
+      reduce_ngram_function(trigram_model_all_sb)
+  ),
+
+  ## Quadgram
+  tar_target(
+      quadgram_model_all_reduced,
+      reduce_ngram_function(quadgram_model_all_sb)
+  ),
+
+  ## Fivegram
+  tar_target(
+      fivegram_model_all_reduced,
+      reduce_ngram_function(fivegram_model_all_sb)
+  ),
+
+  ## Sixgram
+  tar_target(
+      sixgram_model_all_reduced,
+      reduce_ngram_function(sixgram_model_all_sb)
+  ),
+  
+  
+  # ## Merge reduced ngram models
+  # tar_target(
+  #     ngram_model_merged,
+  #     ngram_comb_function(list(
+  #         bigram_model_all_reduced,
+  #         trigram_model_all_reduced,
+  #         quadgram_model_all_reduced
+  #         # ,
+  #         # fivegram_model_all_reduced,
+  #         # sixgram_model_all_reduced
+  #     ))
+  # ),
+  
+  ## Merge reduced ngram models
+  tar_target(
+      ngram_model_merged,
+      rbindlist(list(
+          bigram_model_all_reduced,
+          trigram_model_all_reduced,
+          quadgram_model_all_reduced,
+          fivegram_model_all_reduced,
+          sixgram_model_all_reduced
+      ), fill=FALSE, idcol=NULL)
+  ),
+  
+  
+  
 
   # ## Model list (exluding unigram)
   # tar_target(

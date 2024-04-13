@@ -2,6 +2,152 @@
 ## Ignored by command sourcing functions from _targets.R
 
 
+## look at unigram model
+unigram_model <- tar_read(unigram_model_all)
+# check size
+print(object.size(unigram_model), units="Mb")
+
+
+
+## load model
+ngram_model <- tar_read(ngram_model_merged)
+# check size
+print(object.size(ngram_model), units="Mb")
+
+
+
+trigram_mode <- tar_read(trigram_model_all)
+print(object.size(trigram_mode), units="Mb")
+
+
+
+
+## testing add sb function
+data <- tar_read(fivegram_model_all)
+
+sbn <- 5
+
+## work out stupid backoff multiplier
+sb_multiplier <- 0.4^(7 - sbn)
+
+## add sb score variable
+data[, sb_score:=exp(next_word_prob)*sb_multiplier]
+
+data.table::setorder(data, -sb_score)
+
+
+
+
+
+
+## check size of higher order ngram models
+
+data_5 <- tar_read(fivegram_model_all_reduced)
+data_6 <- tar_read(sixgram_model_all_reduced)
+
+print(object.size(data_5), units="Mb")
+print(object.size(data_6), units="Mb")
+
+
+
+
+
+
+
+
+
+
+
+## making models smaller
+data <- tar_read(preprocess_tokenise_bigram_premodel_all)
+
+
+## Convert to data.table in place
+setDT(data)
+
+## Subset
+data <- data[, 3, with=F]
+
+## change names
+setnames(data, colnames(data), "text")
+
+## set text as key
+## Set keys
+setkey(data, text)
+
+## count frequencies
+ngram_counts <- data[, .N ,by = text]
+
+## filter ngram_counts to those above 3
+ngram_counts <- ngram_counts[N > 3,]
+
+## filter data
+data <- data[text %in% ngram_counts$text]
+
+
+data_small <- data
+
+
+## sizes
+print(object.size(data), units="Mb")
+print(object.size(data_small), units="Mb")
+
+
+
+
+data <- data[,n:=.N,text][n>3,,][,n:=NULL]
+
+
+
+
+
+
+
+
+
+
+
+## Just looking at ngram model
+
+bigram <- tar_read(bigram_model_all_reduced)
+trigram <- tar_read(trigram_model_all_reduced)
+
+dt_list <- list(bigram, trigram)
+
+dt_comb <- rbindlist(dt_list, fill=FALSE, idcol=NULL)
+
+
+## Trying to reduce ngram models
+
+data <- tar_read(ngram_model_merged)
+
+## Reading new ngram objects (on all data!)
+data <- tar_read(unigram_model_all)
+data <- tar_read(bigram_model_all)
+
+setorder(data, history_text, -next_word_prob)
+
+
+x <- data[next_word_prob > -0.25, ]
+
+y <- data[, head(.SD, 5), by=history_text]
+
+
+
+data[, head(.SD, 5), by=history_text]
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

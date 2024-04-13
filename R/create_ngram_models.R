@@ -4,14 +4,14 @@
 ## Unigram
 create_unigram_function <- function(data){
     
-    ## Convert to data.table in place
-    setDT(data)
-    
-    ## Subset
-    data <- data[, 3, with=F]
-    
-    ## change names
-    setnames(data, colnames(data), "text")
+    # ## Convert to data.table in place
+    # setDT(data)
+    # 
+    # ## Subset
+    # data <- data[, 3, with=F]
+    # 
+    # ## change names
+    # setnames(data, colnames(data), "text")
     
     ## total_word_count
     data[, total_word_count := .N]
@@ -39,14 +39,14 @@ create_unigram_function <- function(data){
 create_ngram_function <- function(data){
     
     
-    ## Convert to data.table in place
-    setDT(data)
-    
-    ## Subset
-    data <- data[, 3, with=F]
-    
-    ## change names
-    setnames(data, colnames(data), "text")
+    # ## Convert to data.table in place
+    # setDT(data)
+    # 
+    # ## Subset
+    # data <- data[, 3, with=F]
+    # 
+    # ## change names
+    # setnames(data, colnames(data), "text")
     
     
     ## Create two new columns and split text
@@ -112,6 +112,109 @@ split_ngram_function <- function(data){
     return(data)
        
 }
+
+
+
+## Function to add stupid backoff score
+## sbn is stupid backoff number, passed to this function
+add_sb_function <- function(data, sbn){
+    
+    ## if statement to check if its a unigram
+    if(sbn == 1){
+        
+        ## add sb score variable
+        data[, sb_score:=exp(text_prob)]
+        
+    } else {
+    
+        ## work out stupid backoff multiplier
+        sb_multiplier <- 0.4^(7 - sbn)
+        
+        ## add sb score variable
+        data[, sb_score:=exp(next_word_prob)*sb_multiplier]
+     
+    }   
+        
+    ## return
+    return(data)
+    
+    
+    
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Reduce unigram model
+reduce_unigram_function <- function(data){
+    
+    ## Sort data
+    # data.table::setorder(data, -text_prob)
+    data.table::setorder(data, -sb_score)
+    
+    ## Top 20 most likely next words
+    data <- data[, head(.SD, 20)]
+    
+    ## Return data
+    return(data)
+    
+}
+
+
+
+
+## Reduce ngram model
+reduce_ngram_function <- function(data){
+    
+    ## Sort data
+    # data.table::setorder(data, history_text, -next_word_prob)
+    data.table::setorder(data, history_text, -sb_score)
+    
+    ## Top 20 most likely next words, per history word
+    data <- data[, head(.SD, 20), by=history_text]
+    
+    ## Return data
+    return(data)
+    
+}
+
+## Didn't work, comment out
+## Combined ngram model
+# ngram_comb_function <- function(dt_list){
+#     
+#     ## Create function within function...
+#     merge_func <- function(...) merge(..., all = TRUE, by='history_text')
+#     
+#     ## Merge list of data.tables
+#     dt_merged  <- Reduce(merge_func, dt_list)
+#     
+#     ## Return
+#     return(dt_merged)
+#     
+# }
+
+
+
+
+
+
 
 
 ## Model list

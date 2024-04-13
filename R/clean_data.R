@@ -358,5 +358,40 @@ preprocess_sixgram_premodel_function <- function (data){
 
 
 
+## Reduced tokenised data
+
+## function
+reduce_token_function <- function(data){
+
+    ## Convert to data.table in place
+    setDT(data)
+    
+    ## Subset
+    data <- data[, 3, with=F]
+    
+    ## change names
+    setnames(data, colnames(data), "text")
+    
+    ## set text as key
+    setkey(data, text)
+    
+    ## Remove ngrams with freq less than 4. Keep those with higher than 3.
+    ## New version (13/04/24) - greater than 2.
+    data <- data[,n:=.N,text][n>2,,][,n:=NULL]
+
+
+## Return
+return(data)
+
+}
+
+
+
+
+
+
+
+
+
 
 

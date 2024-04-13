@@ -47,6 +47,11 @@ library(tidymodels)
 # markov chain
 library(markovchain)
 
+# for faster r targets storage
+library(qs)
+
+
+
 # For reversing list structure
 library(paleotree)
 # For emojis
