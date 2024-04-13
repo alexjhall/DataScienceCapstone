@@ -2,6 +2,160 @@
 ## Ignored by command sourcing functions from _targets.R
 
 
+
+
+## Results of test with sample 100000
+results <- tar_read(accuracy_test)[[2]]
+results
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## call new function...
+x <- test_prediction_function(val_test_data, ngram_model, unigram_model)
+x[[2]]
+
+## works!
+## build into pipeline...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## build prediction tester
+## put into function.
+
+
+## load model
+ngram_model <- tar_read(ngram_model_merged)
+# check size
+print(object.size(ngram_model), units="Mb")
+
+## load unigram model
+unigram_model <- tar_read(unigram_model_all_reduced)
+# check size
+print(object.size(unigram_model), units="Mb")
+
+## test text
+input_text <- "why did you do"
+
+
+## function args
+## input text
+## unigram model
+## ngram model
+
+
+
+
+## Testing the testing algorithm.
+
+## Load validation testing data
+val_test_data <- tar_read(hist_text_val_split_all_sample)
+
+
+
+## Add empty columns to dataframe to put results into
+val_test_data[, c("pred1_true", "pred3_true", "pred5_true", "time_taken")] <- NA
+
+## change type of time_taken
+val_test_data$time_taken <- as.numeric(NA)
+
+
+## For loop first to check.
+
+testing_start_time <- Sys.time()
+
+for(i in seq(nrow(val_test_data))){
+    
+    ## Produce list of predictions, including timer output
+    output_list <- predict_words_function_v2(
+        input_text = val_test_data$history_text[i],
+        ngram_model = ngram_model,
+        unigram_model = unigram_model)
+    
+    ## Put into variables
+    val_test_data$pred1_true[i] <- val_test_data$next_word[i] == output_list[[1]]
+    val_test_data$pred3_true[i] <- val_test_data$next_word[i] %in% output_list[[2]]
+    val_test_data$pred5_true[i] <- val_test_data$next_word[i] %in% output_list[[3]]
+    
+    val_test_data$time_taken[i] <- output_list[[4]]
+    
+}
+
+## Timer - end time
+testing_end_time <- Sys.time()
+
+## Get time
+time.taken <- testing_end_time - testing_start_time
+
+
+
+
+
+
+
+
+## *******************************************************
+## Summary of accuracy
+print(paste("Next word accuracy: ", scales::percent(sum(val_test_data$pred1_true) / nrow(val_test_data))))
+print(paste("Top 3 accuracy: ", scales::percent(sum(val_test_data$pred3_true) / nrow(val_test_data))))
+print(paste("Top 5 accuracy: ", scales::percent(sum(val_test_data$pred5_true) / nrow(val_test_data))))
+print(time.taken)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Working on test datasets - already done...
+data <- tar_read(reduce_token_trigram_all)
+test_data <- tar_read(hist_text_val_split_trigram_all)
+
+
+
+
+
+
+
+
+
+
 ## look at unigram model
 unigram_model <- tar_read(unigram_model_all)
 # check size

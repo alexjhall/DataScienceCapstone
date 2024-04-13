@@ -19,7 +19,13 @@ input_text <- "Guy at my table's wife got up to go to the bathroom and I asked a
 input_text <- "I'd give anything to see arctic monkeys this" #guessed weekend
 input_text <- "Talking to your mom has the same effect as a hug and helps reduce your" # guessed stress
 input_text <- "When you were in Holland you were like 1 inch away from me but you hadn't time to take a" # algo look
+    # wrong
+    # picture?
+
 input_text <- "I'd just like all of these questions answered, a presentation of evidence, and a jury to settle the" #algo case
+    # wrong
+    # matter?
+
 input_text <- "I can't deal with unsymetrical things. I can't even hold an uneven number of bags of groceries in each" #algo hand, but low down
 input_text <- "Every inch of you is perfect from the bottom to the" # algo: top
 input_text <- "I’m thankful my childhood was filled with imagination and bruises from playing" #guessed outside
@@ -43,7 +49,7 @@ input_text_split <- tail(input_text_split, 5)
 ## To be used in control flow
 input_text_length <- length(input_text_split)
 
-# input_text_ngram <- paste(tail(input_text_split,3), collapse = ' ')
+# input_text_ngram <- paste(tail(input_text_split,5), collapse = ' ')
 
 
 ## *******************************************************

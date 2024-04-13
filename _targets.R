@@ -917,6 +917,24 @@ list(
       )
   ),
   
+  ## Sample from v large testing dataset
+  ## this was used for building testing function
+  tar_target(
+      hist_text_val_split_all_sample,
+      sample_df_function(hist_text_val_split_all, n = 1000)
+      
+  ),
+  
+  ## test accuracy
+  tar_target(
+      accuracy_test,
+      test_prediction_function(
+          test_df = hist_text_val_split_all_sample,
+          ngram_model_input = ngram_model_merged,
+          unigram_model_input = unigram_model_all_reduced
+      )
+      
+  ),
   
   
   

@@ -129,16 +129,152 @@ predict_words_function <- function(input_text, model_list){
 
 
 ## Generate predicted words from input
-predict_words_backoff_function <- function(input_text, model_list){
+## second version using DT ngram model
+predict_words_function_v2 <- function(input_text, ngram_model, unigram_model){
     
+    ## Timer - end time
+    start.time <- Sys.time()
+    
+    
+    
+    ## *************************************************
+    ## clean and parse input test
+    
+    ## clean input text to remove punctuation.
+    input_text <- clean_text_function(input_text)
+    
+    ## Split based on space
+    input_text_split <- as.character(str_split(tolower(input_text), pattern = " ", simplify = TRUE))
+    
+    ## Reduce size to only look at last x words
+    input_text_split <- tail(input_text_split, 5)
+    
+    ## To be used in control flow
+    input_text_length <- length(input_text_split)
+    
+    
+    
+    ## Set up list for each set of predictions
+    preds <- list()
+    
+    
+    ## ***********************************
+    ## Get predictions from ngram model
+    ## For loop
+    for (i in 1:input_text_length){
+        
+        ## get last n words from string and combine into single character, separated by spaces.
+        input_text_ngram <- paste(tail(input_text_split,i), collapse = ' ')
+        
+        ## Filter training data on input_text_ngram
+        preds[[i]] <- ngram_model[history_text == input_text_ngram,]
+        
+        
+    }
+    
+    ## Combine lists to one DT
+    preds <- rbindlist(preds)
+    
+    ## arrange descending by sb_score
+    data.table::setorder(preds, -sb_score)
+    
+    ## make vector with preds results plus unigram model
+    ## if pred results has none, or less than 5, unigram model will fill in the blanks
+    pred_vec <- c(preds$next_word, unigram_model$text)
+    
+    
+    ## ********************
+    ## Pull out top predictions
+    
+    pred_top1 <- pred_vec[1]
+    pred_top3 <- pred_vec[1:3]
+    pred_top5 <- pred_vec[1:5]
+    
+    
+    
+    ## Timer - end time
+    end.time <- Sys.time()
+    
+    ## Get time
+    time.taken <- as.numeric(end.time - start.time)
+    
+    ## Make list
+    return_list <- list(pred_top1, pred_top3, pred_top5, time.taken)
     
     ## Return
-    # return(return_list)
+    return(return_list)
     
     
     
 }
 
 
-
+## Function to get test summary
+test_prediction_function <- function(test_df, ngram_model_input, unigram_model_input){
+    
+    ## Add empty columns to dataframe to put results into
+    test_df[, c("pred1_true", "pred3_true", "pred5_true", "time_taken")] <- NA
+    
+    ## change type of time_taken
+    test_df$time_taken <- as.numeric(NA)
+    
+    
+    ## For loop first to check.
+    
+    testing_start_time <- Sys.time()
+    
+    for(i in seq(nrow(test_df))){
+        
+        ## Produce list of predictions, including timer output
+        output_list <- predict_words_function_v2(
+            input_text = test_df$history_text[i],
+            ngram_model = ngram_model_input,
+            unigram_model = unigram_model_input)
+        
+        ## Put into variables
+        test_df$pred1_true[i] <- test_df$next_word[i] == output_list[[1]]
+        test_df$pred3_true[i] <- test_df$next_word[i] %in% output_list[[2]]
+        test_df$pred5_true[i] <- test_df$next_word[i] %in% output_list[[3]]
+        
+        test_df$time_taken[i] <- output_list[[4]]
+        
+    }
+    
+    ## Timer - end time
+    testing_end_time <- Sys.time()
+    
+    ## Get time
+    time.taken <- testing_end_time - testing_start_time
+    
+    ## make dataframe
+    accuracy_summary_df <- tibble(
+        `Next word accuracy` = scales::percent(sum(test_df$pred1_true) / nrow(test_df)),
+        `Top 3 accuracy` = scales::percent(sum(test_df$pred3_true) / nrow(test_df)),
+        `Top 5 accuracy` =  scales::percent(sum(test_df$pred5_true) / nrow(test_df)),
+        `Time taken` = time.taken
+    )
+    
+    
+    ## func_output_list
+    func_output_list <- list(test_df, accuracy_summary_df)
+    
+    
+    
+    # ## *******************************************************
+    # ## Summary of accuracy
+    # print(paste("Next word accuracy: ", scales::percent(sum(val_test_data$pred1_true) / nrow(val_test_data))))
+    # print(paste("Top 3 accuracy: ", scales::percent(sum(val_test_data$pred3_true) / nrow(val_test_data))))
+    # print(paste("Top 5 accuracy: ", scales::percent(sum(val_test_data$pred5_true) / nrow(val_test_data))))
+    # print(time.taken)
+    
+    
+    
+    ## return
+    return(func_output_list)
+    
+    
+    
+    
+    
+}
 

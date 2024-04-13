@@ -115,6 +115,19 @@ split_ngram_function <- function(data){
 
 
 
+## Sample dataframe
+sample_df_function <- function(df, n){
+    
+    ## sampling
+    df <- df[sample(nrow(df), n), ]
+    
+    ## return
+    return(df)
+    
+}
+
+
+
 ## Function to add stupid backoff score
 ## sbn is stupid backoff number, passed to this function
 add_sb_function <- function(data, sbn){
