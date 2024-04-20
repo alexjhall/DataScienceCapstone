@@ -50,6 +50,9 @@ library(markovchain)
 # for faster r targets storage
 library(qs)
 
+# for shiny app
+library(shiny)
+
 
 
 # For reversing list structure
