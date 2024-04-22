@@ -1,0 +1,47 @@
+---
+title: "Next word predictor"
+subtitle: "Pitch slides for John Hopkins Data Science Specialisation Capstone Project"
+author: "Alex Hall"
+format: revealjs
+date: '`r format(Sys.Date(), "%B %d, %Y")`'
+---
+
+## Introduction {.smaller}
+
+This pitch presentation is part of the Capstone Project in the John Hopkins Data Science Specialisation course. The 'pitch' here is to promote an R Shiny application that can predict the next word in a sentence, in the same way that [SwiftKey](https://en.wikipedia.org/wiki/Microsoft_SwiftKey) functions. 
+
+The challenge in this project was to learn and apply Natural Language Processing to a vague problem statement, with little instruction, mimicking a common experience as a data scientist.
+
+The data provided from this project was sourced from news articles, blog posts and Twitter posts. All together the data consisted of 4,269,678 lines of text, 102,090,204 words and 870MB. Most words appeared only once, so that 17,641 unique words covered 90% of word occurances.
+
+
+**Links**
+- [R Shiny App](https://alexjhall.shinyapps.io/next-word-prediction)
+- [Milestone Report](https://rpubs.com/alexjhall/DScapstone-milestone-report)
+- [Github Repository](https://github.com/alexjhall/DataScienceCapstone)
+
+
+## Training Data and Approach {.smaller}
+
+A key feature of this project was balancing size and speed. A model that was too big would take tens of hours to process and would not fit within R Shiny's 1GB limit, but one that was too small would have poor accuracy. I found a compromise supported by targets, tidytext and data.table packages to build ngram models for 1-6 ngrams. I then calculated probabilities for each 'next word' using a stupid backoff approach. I used all available data, split into test and train datasets, which meant that ngram tokenisation and probability calculations were very length computations, but the final combined ngram model was only ~30MB so the app is relatively fast.
+
+Processing the data and creating the ngram models involved removing profanity, keeping stop words, removing special characters and numbers, then tokenising the data into 1-6 ngrams. In each ngram, the probability of the next word given the history text was calculated. Next words with frequencies less than three were removed for efficiency and only the top 20 words per history text was retained.  
+
+The R Shiny app searches the history text in a combined ngram model for the last 5,4,3,2,1 words of sentence, retreiving predicted words and probabilities. These are sorted on their probability and the top five are returned. If there are less than five (e.g. the history text is not found), then it returns the top 5 unigrams.
+
+## Using the App {.smaller}
+
+Include screenshot.
+
+## Features and next steps {.smaller}
+
+buttons
+also report for detailed summary of training data.
+
+shiny size limit
+
+more data
+
+
+
+
