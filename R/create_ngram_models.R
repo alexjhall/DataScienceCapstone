@@ -136,7 +136,7 @@ add_sb_function <- function(data, sbn){
     if(sbn == 1){
         
         ## add sb score variable
-        data[, sb_score:=exp(text_prob)]
+        data[, sb_score:=exp(text_prob)*(0.4^6)]
         
     } else {
     

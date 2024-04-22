@@ -15,6 +15,7 @@ number-sections: true ## Gives sections numbers. Helpful for navigation with cro
 reference-location: margin
 # citation location set to document.
 citation-location: margin
+self-contained: true
 ---
 
 ```{r, echo = FALSE, warning=FALSE, message=FALSE}

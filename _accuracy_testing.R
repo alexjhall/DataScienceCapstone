@@ -81,7 +81,13 @@ for (i in 1:5){
 
 ## Combine lists to one DT
 preds <- rbindlist(preds)
-preds
+
+## group by predicted word and combine scores
+test <- preds[, .(sb_score_total=exp(sum(log(sb_score)))), by=next_word]
+
+    
+## order
+preds[order(-sb_score)]
 
 
 

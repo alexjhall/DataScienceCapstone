@@ -387,7 +387,14 @@ return(data)
 
 
 
+## Function to save output to rds in shiny folder
 
+save_rds_shiny_function <- function(data, file_path){
+    
+    ## save as rds
+    saveRDS(object = data, file = file_path)
+    
+}
 
 
 

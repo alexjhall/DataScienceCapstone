@@ -921,7 +921,7 @@ list(
   ## this was used for building testing function
   tar_target(
       hist_text_val_split_all_sample,
-      sample_df_function(hist_text_val_split_all, n = 1000)
+      sample_df_function(hist_text_val_split_all, n = 100)
       
   ),
   
@@ -937,9 +937,32 @@ list(
   ),
   
   
+  ## *************************************************
+  ## R shiny application
+  ## *************************************************
+  
+  ## Save data files for Shiny
+  
+  # ngram model
+  tar_target(
+      save_ngram,
+      save_rds_shiny_function(
+          data = ngram_model_merged,
+          file_path = here("shiny/ngram_model.RDS")
+      )
+      
+  ),
   
   
-  
+  # unigram model
+  tar_target(
+      save_unigram,
+      save_rds_shiny_function(
+          data = unigram_model_all_reduced,
+          file_path = here("shiny/unigram_model.RDS")
+      )
+      
+  ),
   
   
   
