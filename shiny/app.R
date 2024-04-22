@@ -3,9 +3,8 @@
 ## Load packages
 library(shiny)
 library(tidyverse)
-library(targets)
 library(data.table)
-library(here)
+
 
 
 ## Load models
@@ -174,7 +173,7 @@ ui <- fluidPage(
                 ## EDA report
                 tabPanel(
                     "Exploratory analysis report",
-                    includeHTML("milestone-report.html")  
+                    includeHTML("milestone-report.html")
                 ),
                 
                 
@@ -199,7 +198,7 @@ ui <- fluidPage(
                     HTML('<a href="https://en.wikipedia.org/wiki/Katz%27s_back-off_model"> Katz back-off model</a>'),
                     helpText(
                         "The full model is condensed to show the highest probability words for each sentance and is stored as 
-                        a data.table object. It is therefore very small and fast, presenting predictions instantly."
+                        a data.table object. It is therefore small and fast, presenting predictions almost instantly."
                     ),
                     helpText(
                         "For full details on the model and this app, please see the following repository:"
