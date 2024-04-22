@@ -978,22 +978,19 @@ list(
   tarchetypes::tar_quarto(
     milestone_report,
     here("reports/milestone-report.qmd")
-  )
+  ),
 
 
   ## *************************************************
   ## Slides
   ## *************************************************
   
-  ## Colours set as global variables at the top of this script.
+  ## Quarto pitch slides
+  tarchetypes::tar_quarto(
+      pitch_slides,
+      here("reports/pitch-slides.qmd")
+  )
   
-  
-  # 
-  # ## Quarto main report slides
-  # tarchetypes::tar_quarto(
-  #   main_report_slides,
-  #   here("Slides/campaign-eval-design-slides.qmd")
-  # )
 
   
 )

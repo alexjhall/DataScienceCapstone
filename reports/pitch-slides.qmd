@@ -3,7 +3,7 @@ title: "Next word predictor"
 subtitle: "Pitch slides for John Hopkins Data Science Specialisation Capstone Project"
 author: "Alex Hall"
 format: revealjs
-date: '`r format(Sys.Date(), "%B %d, %Y")`'
+date: today
 ---
 
 ## Introduction {.smaller}
@@ -12,35 +12,56 @@ This pitch presentation is part of the Capstone Project in the John Hopkins Data
 
 The challenge in this project was to learn and apply Natural Language Processing to a vague problem statement, with little instruction, mimicking a common experience as a data scientist.
 
-The data provided from this project was sourced from news articles, blog posts and Twitter posts. All together the data consisted of 4,269,678 lines of text, 102,090,204 words and 870MB. Most words appeared only once, so that 17,641 unique words covered 90% of word occurances.
+The data provided from this project was sourced from news articles, blog posts and Twitter posts. All together the data consisted of 4,269,678 lines of text, 102,090,204 words and 870MB. Most words appeared only once, so that 17,641 unique words covered 90% of word occurrences. All available data were used, split into test and train datasets.
 
 
 **Links**
+
 - [R Shiny App](https://alexjhall.shinyapps.io/next-word-prediction)
+
 - [Milestone Report](https://rpubs.com/alexjhall/DScapstone-milestone-report)
+
 - [Github Repository](https://github.com/alexjhall/DataScienceCapstone)
 
 
 ## Training Data and Approach {.smaller}
 
-A key feature of this project was balancing size and speed. A model that was too big would take tens of hours to process and would not fit within R Shiny's 1GB limit, but one that was too small would have poor accuracy. I found a compromise supported by targets, tidytext and data.table packages to build ngram models for 1-6 ngrams. I then calculated probabilities for each 'next word' using a stupid backoff approach. I used all available data, split into test and train datasets, which meant that ngram tokenisation and probability calculations were very length computations, but the final combined ngram model was only ~30MB so the app is relatively fast.
+A key feature of this project was balancing size, speed and accuracy. A compromise was found using targets, tidytext and data.table packages to build ngram models for 1-6 ngrams. 
 
-Processing the data and creating the ngram models involved removing profanity, keeping stop words, removing special characters and numbers, then tokenising the data into 1-6 ngrams. In each ngram, the probability of the next word given the history text was calculated. Next words with frequencies less than three were removed for efficiency and only the top 20 words per history text was retained.  
+Processing the data and creating the ngram models involved:
 
-The R Shiny app searches the history text in a combined ngram model for the last 5,4,3,2,1 words of sentence, retreiving predicted words and probabilities. These are sorted on their probability and the top five are returned. If there are less than five (e.g. the history text is not found), then it returns the top 5 unigrams.
+- removing profanity,
+- keeping stop words,
+- removing special characters and numbers and then
+- tokenising the data into 1-6 ngrams. 
+
+In each ngram, the probability of the next word given the history text was calculated using a stupid Katz backoff approach. Next words with frequencies less than three were removed for efficiency and only the top 20 words per history text was retained.  
 
 ## Using the App {.smaller}
 
-Include screenshot.
+:::: {.rows}
+
+::: {.row height="40%"}
+![](app-screenshot.png)
+:::
+
+::: {.row height="60%"}
+The R Shiny app searches the history text in a combined ngram model for the last 5,4,3,2,1 words of sentence, retrieving predicted words and probabilities. These are sorted on their probability and the top five are returned. If there are less than five (e.g. the history text is not found), then it returns the top 5 unigrams.
+:::
+
+::::
 
 ## Features and next steps {.smaller}
+This app has a number of useful features:
 
-buttons
-also report for detailed summary of training data.
+- Predictions are presented as buttons, which allow the user to add the predicted word to the sentance and predict new words. Continually clicking on predicted words in this way allows the creation of 'hallucination' text.
 
-shiny size limit
+- The ngram model is stored as a data.table object with indexed search text, meaning that it is relatively very quick.
 
-more data
+- The app also includes the full milestone report, providing useful context about the training data and its attributes.
+
+
+Ultimately, the prediction performance could be improved. Both with more data and more sophisticated prediction algorithms and deep learning models. This application serves as a proof of concept designed to secure further funding in this pitch scenario.
 
 
 
